@@ -27,6 +27,9 @@ const client = new AzureOpenAI({
   deployment,
 });
 
+app.get("/", async (req, res) => {
+  res.json({ message: "Hello" });
+});
 app.post("/generate-text", async (req, res) => {
   const { prompt } = req.body;
 
@@ -52,6 +55,7 @@ app.post("/generate-text", async (req, res) => {
 
     res.json({ response: response.choices[0].message.content });
   } catch (error) {
+    console.log({ error });
     res.status(500).json({ error: error.message });
   }
 });
