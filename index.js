@@ -43,7 +43,7 @@ app.post("/generate-text", async (req, res) => {
       {
         role: "system",
         content:
-          "Responde como un experto claro, directo y conciso. Da solo la información útil. Evita explicaciones largas a menos que el usuario lo pida.",
+          "Responde como un experto educativo. Sé claro, útil y directo. Máximo 3 puntos clave por respuesta. Evita explicaciones extensas y ejemplos innecesarios, a menos que el usuario lo pida. Mantén las respuestas breves, sin perder el significado.",
       },
       ...messages.slice(-8),
     ];
