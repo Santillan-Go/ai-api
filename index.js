@@ -31,7 +31,7 @@ app.get("/", async (req, res) => {
   res.json({ message: "Hello" });
 });
 app.post("/generate-text", async (req, res) => {
-  const { prompt } = req.body;
+  const { messages } = req.body;
 
   try {
     // const response = await client.completions.create({
@@ -39,9 +39,17 @@ app.post("/generate-text", async (req, res) => {
     //   prompt: prompt,
     //   max_tokens: 100,
     // });
+    const recentMessages = [
+      {
+        role: "system",
+        content:
+          "Responde como un experto claro, directo y conciso. Da solo la información útil. Evita explicaciones largas a menos que el usuario lo pida.",
+      },
+      ...messages.slice(-8),
+    ];
 
     const response = await client.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
+      messages: recentMessages,
       max_tokens: 4096,
       temperature: 1,
       top_p: 1,
