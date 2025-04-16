@@ -79,10 +79,12 @@ En las propiedades del delta no las envuelvas(con \\), no asi:\"insert\. Al fina
     console.log(
       `[{"insert":"Improve","attributes":{"bold":true,"italic":true,"color":"#FF43A047"}},{"insert":"\n","attributes":{"header":3,"align":"center"}},{"insert":"\n","attributes":{"align":"center"}},{"insert":"I have to improve english skill"},{"insert":"\n","attributes":{"align":"center"}}]`
     );
+    const content = response.choices[0].message.content;
     if (!lastMessageUser["isACard"]) {
-      res.json({ response: response.choices[0].message.content });
+      res.json({ response: content });
     } else {
-      res.json(response.choices[0].message.content);
+      const parsed = JSON.parse(content); // <- esto lo convierte de string a objeto
+      res.json(parsed);
     }
   } catch (error) {
     console.log({ error });
