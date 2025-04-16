@@ -51,8 +51,7 @@ app.post("/generate-text", async (req, res) => {
   "deltaFront": "[{"insert":"Thrive","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":/θraɪv/\n","attributes":{"bold":true,"italic":true,"align":"center"}},{"insert":"The sunflowers thrived in the sunny garden. 🌻☀️\n","attributes":{"bold":true,"align":"center"}}, {"insert": "\n"}]",
   "deltaBack": "[{"insert":"Meaning","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":"To grow or develop successfully.  To flourish.  To prosper. ✨\n","attributes":{"align":"center"}}, {"insert": "\n"}]"
 }
-En las propiedades del delta no las envuelvas(con \\), no asi:\"insert\. Al final de cada delta agrega: {"insert": "\n"}. Responde solo con un JSON válido. Las propiedades deltaFront y deltaBack deben ser **arrays JSON reales**, no strings.No devuelvas strings escapados. No uses markdown ni comillas innecesarias. Devuelve solo el objeto JSON.
-.No pongas saltos de línea literales. Solo usa "\n" como string.No expliques el formato. No uses backticks ni . No escapes comillas innecesarias. Devuelve solo el objeto JSON.`,
+En las propiedades del delta no las envuelvas(con \\), no asi:\"insert\. Al final de cada delta agrega: {"insert": "\n"}. Devuelve un objeto JSON válido. Usa siempre "\\n" (doble barra invertida y n) como salto de línea dentro de los valores de "insert". No uses saltos reales de línea dentro de strings. Devuelve arrays JSON reales, no strings. No escapes innecesariamente. No uses comillas dentro de comillas. Devuelve solo el JSON, sin explicación.`,
       };
     } else {
       systemMessage = {
