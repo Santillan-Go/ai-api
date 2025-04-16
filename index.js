@@ -44,13 +44,14 @@ app.post("/generate-text", async (req, res) => {
     if (lastMessageUser["isACard"]) {
       systemMessage = {
         role: "system",
-        content: `Responde como un experto educativo. Si el usuario pide una flashcard, responde con un objeto JSON que contenga:
-- response: una breve frase como 'Aquí tienes tu flashcard'
-- isACard: true
-- deltaFront: string con el contenido en formato Delta (palabra,pronunciación ejemplo).
--deltaBack:una cadena con el contenido en formato Delta que contenga:
-  - El significado (como heading nivel 3, en negritas y centrado).
-Para todo lo demás, responde como siempre (solo con texto y isACard: false). No des explicaciones del formato, Ejemplo sobre como debe de ir el titulo, significado y  meaning front:[{"insert": "Improv\\n", "attributes": {"bold": true, "align": "center"}},{"insert": "Pronunciation\\n", "attributes": {"bold": true, "italic": true, "align": "center"}},{"insert": "An example sentence.\\n", "attributes": {"bold": true, "align": "center"}}}], back:  [{"insert": "Meaning\\n", "attributes": {"bold": true, "heading": 3, "align": "center"}}]`,
+        content: `Responde como un experto educativo. Si el usuario pide una flashcard, responde con un objeto JSON válido, sin envolverlo en markdown, sin usar comillas escapadas innecesarias ni \n que no correspondan. Ensure that deltaBack and deltaFront uses only Delta JSON formatting. El objeto debe tener:
+{
+  "response": "Aquí tienes tu flashcard",
+  "isACard": true,
+  "deltaFront": "[{"insert":"Thrive","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":/θraɪv/\n","attributes":{"bold":true,"italic":true,"align":"center"}},{"insert":"The sunflowers thrived in the sunny garden. 🌻☀️\n","attributes":{"bold":true,"align":"center"}}, {"insert": "\n"}]",
+  "deltaBack": "[{"insert":"Meaning","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":"To grow or develop successfully.  To flourish.  To prosper. ✨\n","attributes":{"align":"center"}}, {"insert": "\n"}]"
+}
+En las propiedades del delta no las envuelvas(con \\), no asi:\"insert\. Al final de cada delta agrega: {"insert": "\n"}.No pongas saltos de línea literales. Solo usa "\n" como string.No expliques el formato. No uses backticks ni . No escapes comillas innecesarias. Devuelve solo el objeto JSON.`,
       };
     } else {
       systemMessage = {
@@ -73,8 +74,11 @@ Para todo lo demás, responde como siempre (solo con texto y isACard: false). No
     if (response?.error !== undefined && response.status !== "200") {
       throw response.error;
     }
-    console.log(response.choices[0].message.content);
 
+    console.log(response.choices[0].message.content);
+    console.log(
+      `[{"insert":"Improve","attributes":{"bold":true,"italic":true,"color":"#FF43A047"}},{"insert":"\n","attributes":{"header":3,"align":"center"}},{"insert":"\n","attributes":{"align":"center"}},{"insert":"I have to improve english skill"},{"insert":"\n","attributes":{"align":"center"}}]`
+    );
     if (!lastMessageUser["isACard"]) {
       res.json({ response: response.choices[0].message.content });
     } else {
