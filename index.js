@@ -39,14 +39,28 @@ app.post("/generate-text", async (req, res) => {
     //   prompt: prompt,
     //   max_tokens: 100,
     // });
-    const recentMessages = [
-      {
+    const lastMessageUser = messages[messages.length - 1];
+    let systemMessage = {};
+    if (lastMessageUser["isACard"]) {
+      systemMessage = {
+        role: "system",
+        content: `Responde como un experto educativo. Si el usuario pide una flashcard, responde con un objeto JSON que contenga:
+- response: una breve frase como 'Aquí tienes tu flashcard'
+- isACard: true
+- deltaFront: string con el contenido en formato Delta (palabra,pronunciación ejemplo).
+-deltaBack:una cadena con el contenido en formato Delta que contenga:
+  - El significado (como heading nivel 3, en negritas y centrado).
+Para todo lo demás, responde como siempre (solo con texto y isACard: false). No des explicaciones del formato, Ejemplo sobre como debe de ir el titulo, significado y  meaning front:[{"insert": "Improv\\n", "attributes": {"bold": true, "align": "center"}},{"insert": "Pronunciation\\n", "attributes": {"bold": true, "italic": true, "align": "center"}},{"insert": "An example sentence.\\n", "attributes": {"bold": true, "align": "center"}}}], back:  [{"insert": "Meaning\\n", "attributes": {"bold": true, "heading": 3, "align": "center"}}]`,
+      };
+    } else {
+      systemMessage = {
         role: "system",
         content:
           "Responde como un experto educativo. Sé claro, útil y directo. Máximo 3 puntos clave por respuesta. Evita explicaciones extensas y ejemplos innecesarios, a menos que el usuario lo pida. Mantén las respuestas breves, sin perder el significado.",
-      },
-      ...messages.slice(-8),
-    ];
+      };
+    }
+
+    const recentMessages = [systemMessage, ...messages.slice(-8)];
 
     const response = await client.chat.completions.create({
       messages: recentMessages,
@@ -61,7 +75,11 @@ app.post("/generate-text", async (req, res) => {
     }
     console.log(response.choices[0].message.content);
 
-    res.json({ response: response.choices[0].message.content });
+    if (!lastMessageUser["isACard"]) {
+      res.json({ response: response.choices[0].message.content });
+    } else {
+      res.json(response.choices[0].message.content);
+    }
   } catch (error) {
     console.log({ error });
     res.status(500).json({ error: error.message });
