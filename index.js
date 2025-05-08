@@ -392,7 +392,7 @@ async function getVideoDetails(videoId) {
   }; // Retorna true o false
 }
 
-app.get("/search-videos", async (req, res) => {
+app.post("/search-videos", async (req, res) => {
   const { query } = req.body;
 
   if (!query) {
