@@ -392,8 +392,8 @@ async function getVideoDetails(videoId) {
   }; // Retorna true o false
 }
 
-app.post("/search-videos", async (req, res) => {
-  const { query } = req.body;
+app.get("/search-videos/:query", async (req, res) => {
+  const { query } = req.params;
 
   if (!query) {
     return res.status(400).json({ error: "Missing query parameter" });
@@ -447,6 +447,7 @@ async function fetchCaptions(videoId) {
     console.log("Subtítulos encontrados en en-US");
     return captions;
   } catch (error) {
+    console.log(error);
     console.warn("No se encontraron en en-US, intentando en en...");
     try {
       // Intentar con 'en' si falla 'en-US'
@@ -457,6 +458,7 @@ async function fetchCaptions(videoId) {
       console.log("Subtítulos encontrados en en");
       return captions;
     } catch (error) {
+      console.log(error);
       console.error("No se encontraron subtítulos disponibles.");
       return [];
     }
