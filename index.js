@@ -5,11 +5,9 @@ import url from "url";
 import dotenv from "dotenv";
 //import TranscriptAPI from 'youtube-transcript-api';
 // Import the functions you need from the SDKs you need
-import { YoutubeTranscript } from "youtube-transcript";
-import xml2js from "xml2js";
-import { AuthClient, GoogleAuth, OAuth2Client } from "google-auth-library";
+
 import { v2 as cloudinary } from "cloudinary";
-//CLOUDINARY_URL=cloudinary://475319171551118:4VakEPBETAucnoLgOWwFLHCesQw@dzjisimpi
+
 import { getSubtitles } from "youtube-captions-scraper";
 
 import { uploadAudioToCloudinary } from "./services/cloudinary.js";
