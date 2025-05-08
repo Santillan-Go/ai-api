@@ -2,7 +2,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { Readable } from "stream";
 import dotenv from "dotenv";
 dotenv.config();
-console.log(`${process.env.CLOUDINARY_NAME}, ${process.env.CLOUDINARY_KEY}`);
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_KEY,

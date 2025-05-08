@@ -1,11 +1,10 @@
 import { AzureOpenAI } from "openai";
 import express from "express";
 import cors from "cors";
-import url from "url";
+
 import dotenv from "dotenv";
 //import TranscriptAPI from 'youtube-transcript-api';
 // Import the functions you need from the SDKs you need
-
 import { v2 as cloudinary } from "cloudinary";
 
 import { getSubtitles } from "youtube-captions-scraper";
@@ -274,49 +273,49 @@ app.post("/generate-flashcards", async (req, res) => {
 
     //LUEGO GUARDAMOS LOS AUDIOS(CON SU PROPIEDADES) Y LAS FLASHCARDS(CON SUS PROPIEDADES) EN FIREBASE( RELACIONADAS CON UNA PROPIEDAD)
 
-    for (const flashcard of validFlashcards) {
-      // Get the matching audio
-      const audio = audios.find((a) => a.idCard === flashcard.id);
-      if (!audio) continue;
-      const now = new Date();
-      const isoString = now.toISOString();
-      // Save flashcard
-      // Save flashcard
-      const deltaFront = ensureFinalNewline(flashcard.deltaFront);
-      const deltaBack = ensureFinalNewline(flashcard.deltaBack);
-      flashcard["deltaFront"] = deltaFront;
-      flashcard["deltaBack"] = deltaBack;
+    // for (const flashcard of validFlashcards) {
+    //   // Get the matching audio
+    //   const audio = audios.find((a) => a.idCard === flashcard.id);
+    //   if (!audio) continue;
+    //   const now = new Date();
+    //   const isoString = now.toISOString();
+    //   // Save flashcard
+    //   // Save flashcard
+    //   const deltaFront = ensureFinalNewline(flashcard.deltaFront);
+    //   const deltaBack = ensureFinalNewline(flashcard.deltaBack);
+    //   flashcard["deltaFront"] = deltaFront;
+    //   flashcard["deltaBack"] = deltaBack;
 
-      await db
-        .collection("flashcards")
-        .doc(flashcard.id) // You can generate IDs like `A1_flashcardId1` if you want
-        .set({
-          ...flashcard,
-          lastReviewedDate: isoString,
-          nextReviewDate: isoString,
-          interval: 0,
-          easeFactor: 2.5,
-          repetitionCount: 0,
-          lapses: 0,
-          score: 0,
-          level, // Keep this so you can filter/query flashcards by level later
-        });
+    //   await db
+    //     .collection("flashcards")
+    //     .doc(flashcard.id) // You can generate IDs like `A1_flashcardId1` if you want
+    //     .set({
+    //       ...flashcard,
+    //       lastReviewedDate: isoString,
+    //       nextReviewDate: isoString,
+    //       interval: 0,
+    //       easeFactor: 2.5,
+    //       repetitionCount: 0,
+    //       lapses: 0,
+    //       score: 0,
+    //       level, // Keep this so you can filter/query flashcards by level later
+    //     });
 
-      // Save audio
-      await db
-        .collection("audios")
-        .doc(audio.id) // Or format like `A1_audioId1`
-        .set({
-          ...audio,
-          lastReviewedDate: isoString,
-          nextReviewDate: isoString,
-          interval: 0,
-          easeFactor: 2.5,
-          repetitionCount: 0,
-          score: 0,
-          level, // optional but useful
-        });
-    }
+    //   // Save audio
+    //   await db
+    //     .collection("audios")
+    //     .doc(audio.id) // Or format like `A1_audioId1`
+    //     .set({
+    //       ...audio,
+    //       lastReviewedDate: isoString,
+    //       nextReviewDate: isoString,
+    //       interval: 0,
+    //       easeFactor: 2.5,
+    //       repetitionCount: 0,
+    //       score: 0,
+    //       level, // optional but useful
+    //     });
+    // }
 
     res.json({ validFlashcards, audios });
     //res.status(200).json({ flashcards, audios });

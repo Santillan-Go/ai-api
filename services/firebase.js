@@ -16,6 +16,7 @@ import { dirname, join } from "path";
 //   credential: cert(serviceAccount),
 // });
 
-const db = getFirestore();
+//const db = getFirestore();
+const db = () => {};
 
 export { db };
