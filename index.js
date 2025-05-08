@@ -383,18 +383,19 @@ async function getVideoDetails(videoId) {
   const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${YOUTUBE_API_KEY}`;
   const response = await fetch(url);
   const data = await response.json();
-
-  const seconds = parseISODuration(data.items[0]?.contentDetails.duration);
-
-  return {
-    hasSubtitles: data.items[0]?.contentDetails?.caption === "true",
-    seconds: seconds,
-  }; // Retorna true o false
+  if (data.items[0]?.contentDetails?.caption === "true") {
+    const seconds = parseISODuration(data.items[0]?.contentDetails.duration);
+    return {
+      hasSubtitles: data.items[0]?.contentDetails?.caption === "true",
+      seconds: seconds,
+    }; // Retorna true o false
+  } else {
+    return { hasSubtitles: false, seconds: 0 };
+  }
 }
 
 app.get("/search-videos/:query", async (req, res) => {
   const { query } = req.params;
-
   if (!query) {
     return res.status(400).json({ error: "Missing query parameter" });
   }
