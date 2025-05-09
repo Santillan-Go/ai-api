@@ -473,8 +473,9 @@ app.get("/get-transcript/:videoId", async (req, res) => {
     // const transcript = await YoutubeTranscript.fetchTranscript(videoId);
 
     const result = await fetchCaptions(videoId);
+    const transcriptMap = result.map(({ text, start }) => ({ text, start }));
 
-    res.json(result);
+    res.json(transcriptMap);
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: error.message });
