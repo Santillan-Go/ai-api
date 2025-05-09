@@ -7,8 +7,8 @@ import dotenv from "dotenv";
 // Import the functions you need from the SDKs you need
 import { v2 as cloudinary } from "cloudinary";
 
-import { getSubtitles } from "youtube-captions-scraper";
-
+//import { getSubtitles } from "youtube-captions-scraper";
+import { getSubtitles } from "./helper/youtube_scraper.js";
 import { uploadAudioToCloudinary } from "./services/cloudinary.js";
 
 import { db } from "./services/firebase.js"; // adjust path if needed
@@ -448,7 +448,7 @@ async function fetchCaptions(videoId) {
     console.log("Subtítulos encontrados en en-US");
     return captions;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     console.warn("No se encontraron en en-US, intentando en en...");
     try {
       // Intentar con 'en' si falla 'en-US'
@@ -459,7 +459,7 @@ async function fetchCaptions(videoId) {
       console.log("Subtítulos encontrados en en");
       return captions;
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       console.error("No se encontraron subtítulos disponibles.");
       return [];
     }
