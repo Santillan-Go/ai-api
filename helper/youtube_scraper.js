@@ -16,7 +16,9 @@ const fetchData = async function fetchData(url) {
   const randomUserAgent =
     userAgents[Math.floor(Math.random() * userAgents.length)];
   const { data } = await axios.get(url, {
-    headers: randomUserAgent,
+    headers: {
+      "User-Agent": randomUserAgent,
+    },
   });
   return data;
 };
