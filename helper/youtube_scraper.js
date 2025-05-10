@@ -12,12 +12,17 @@ const userAgents = [
   // Add more user-agent strings as needed
 ];
 
+/*
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36
+*/
+
 const fetchData = async function fetchData(url) {
   const randomUserAgent =
     userAgents[Math.floor(Math.random() * userAgents.length)];
   const { data } = await axios.get(url, {
     headers: {
-      "User-Agent": randomUserAgent,
+      "User-Agent": userAgents[1],
     },
   });
   return data;
