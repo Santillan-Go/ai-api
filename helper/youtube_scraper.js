@@ -13,20 +13,11 @@ const userAgents = [
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" +
     "(KHTML, like Gecko) Chrome/118.0.5993.117 Safari/537.36",
 
-  // Chrome - macOS
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_2) AppleWebKit/537.36" +
-    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_6_1) AppleWebKit/537.36" +
-    "(KHTML, like Gecko) Chrome/119.0.6045.200 Safari/537.36",
-
   // Firefox - Windows
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0)" +
     "Gecko/20100101 Firefox/124.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
-
-  // Safari - macOS
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_5_1) AppleWebKit/605.1.15" +
-    "(KHTML, like Gecko) Version/16.0 Safari/605.1.15",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0)" +
+    "Gecko/20100101 Firefox/121.0",
 
   // Edge - Windows
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" +
