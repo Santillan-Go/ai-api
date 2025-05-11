@@ -4,12 +4,33 @@ import he from "he";
 import axios from "axios";
 import lodash from "lodash";
 import striptags from "striptags";
-
 const userAgents = [
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15",
-  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-  // Add more user-agent strings as needed
+  // Chrome - Windows
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" +
+    "(KHTML, like Gecko) Chrome/122.0.6261.129 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" +
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" +
+    "(KHTML, like Gecko) Chrome/118.0.5993.117 Safari/537.36",
+
+  // Chrome - macOS
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_2) AppleWebKit/537.36" +
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_6_1) AppleWebKit/537.36" +
+    "(KHTML, like Gecko) Chrome/119.0.6045.200 Safari/537.36",
+
+  // Firefox - Windows
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0)" +
+    "Gecko/20100101 Firefox/124.0",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0",
+
+  // Safari - macOS
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_5_1) AppleWebKit/605.1.15" +
+    "(KHTML, like Gecko) Version/16.0 Safari/605.1.15",
+
+  // Edge - Windows
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" +
+    "(KHTML, like Gecko) Chrome/121.0.6167.184 Safari/537.36 Edg/121.0.2277.83",
 ];
 
 /*
@@ -23,20 +44,37 @@ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
         "(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
         Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.1 Safari/605.1.15
+
+        Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36
+        Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36
 */
 
 const fetchData = async function fetchData(url) {
   const randomUserAgent =
     userAgents[Math.floor(Math.random() * userAgents.length)];
+  console.log(randomUserAgent);
   const { data } = await axios.get(url, {
     headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" +
-        "(KHTML, like Gecko) Chrome/122.0.6261.129 Safari/537.36",
+      "User-Agent": randomUserAgent, // función que retorna un UA diferente
+      "Accept-Language": "en-US,en;q=0.9",
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9",
+      Connection: "keep-alive",
+      "Cache-Control": "no-cache",
     },
   });
   return data;
 };
+
+// const fetchData = async function fetchData(url) {
+//   const { data } = await axios.get(url, {
+//     headers: {
+//       "User-Agent":
+//         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" +
+//         "(KHTML, like Gecko) Chrome/122.0.6261.129 Safari/537.36",
+//     },
+//   });
+//   return data;
+// };
 
 export async function getSubtitles({ videoID, lang = "en" }) {
   const data = await fetchData(`https://youtube.com/watch?v=${videoID}`);
