@@ -44,7 +44,10 @@ const fetchData = async function fetchData(url) {
   const randomUserAgent =
     userAgents[Math.floor(Math.random() * userAgents.length)];
   console.log(randomUserAgent);
-  const { data } = await axios.get(url, {
+  const { data } = await axios.get(url);
+  return data;
+  /*
+  {
     headers: {
       "User-Agent": randomUserAgent, // función que retorna un UA diferente
       "Accept-Language": "en-US,en;q=0.9",
@@ -52,8 +55,8 @@ const fetchData = async function fetchData(url) {
       Connection: "keep-alive",
       "Cache-Control": "no-cache",
     },
-  });
-  return data;
+  }
+  */
 };
 
 // const fetchData = async function fetchData(url) {
