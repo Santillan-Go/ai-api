@@ -19,7 +19,7 @@ import {
 
 dotenv.config();
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 const apiKey = process.env.API_KEY;
 const app = express();
 
@@ -324,8 +324,11 @@ app.post("/generate-flashcards", async (req, res) => {
     res.status(500).json({ error: "Error creating flashcards" });
   }
 });
-app.listen(port, async () => {
-  console.log("Server running on port 3000");
+// app.listen(port, async () => {
+//   console.log(`Server running on http://localhost:${port}`);
+// });
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server running on port ${port}`);
 });
 
 export default app;
