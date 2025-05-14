@@ -81,7 +81,7 @@ En las propiedades del delta no las envuelvas(con \\), no asi:\"insert\. Al fina
       systemMessage = {
         role: "system",
         content:
-          "Debes de responder como una persona que ayuda al usuario que está aprendiendo inglés; entonces tus respuesta deben de ser en inglés o solo que el usuario te diga que respondas en otro idioma",
+          "Debes de responder como una persona que ayuda al usuario que está aprendiendo inglés; entonces tus respuesta deben de ser en inglés o solo que el usuario te diga que respondas en otro idioma. Se directo, claro, no escribas mucho",
       };
     }
 
@@ -491,7 +491,7 @@ app.post("/translate-text", async (req, res) => {
   try {
     let systemMessage = {
       role: "system",
-      content: `Traduce el siguiente texto al español de forma natural, como si estuvieras ayudando a un estudiante de inglés: ${text} `,
+      content: `Traduce el siguiente texto al español de forma natural, como si estuvieras ayudando a un estudiante de inglés: ${text}. Solo da la traducción, no des explicaciones `,
     };
 
     const recentMessages = [systemMessage];
