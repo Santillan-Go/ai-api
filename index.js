@@ -80,7 +80,8 @@ En las propiedades del delta no las envuelvas(con \\), no asi:\"insert\. Al fina
     } else {
       systemMessage = {
         role: "system",
-        content: get_promt_json_flashcard("Take"),
+        content:
+          "Debes de responder como una persona que ayuda al usuario que está aprendiendo inglés; entonces tus respuesta deben de ser en inglés o solo que el usuario te diga que respondas en otro idioma",
       };
     }
 
@@ -485,6 +486,38 @@ app.get("/get-transcript/:videoId", async (req, res) => {
   }
 });
 
+app.post("/translate-text", async (req, res) => {
+  const { text } = req.body;
+  try {
+    let systemMessage = {
+      role: "system",
+      content: `Traduce el siguiente texto al español de forma natural, como si estuvieras ayudando a un estudiante de inglés: ${text} `,
+    };
+
+    const recentMessages = [systemMessage];
+
+    const response = await client.chat.completions.create({
+      messages: recentMessages,
+      max_tokens: 4096,
+      temperature: 1,
+      top_p: 1,
+      model: "gpt-4o",
+    });
+
+    if (response?.error !== undefined && response.status !== "200") {
+      throw response.error;
+    }
+
+    console.log(response.choices[0].message.content);
+
+    const content = response.choices[0].message.content;
+
+    res.json({ response: content });
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json({ error: error.message });
+  }
+});
 //TRY CATCH FOR AUDIO
 
 // for (const audio of audios) {
