@@ -13,6 +13,7 @@ import { uploadAudioToCloudinary } from "./services/cloudinary.js";
 
 import { db } from "./services/firebase.js"; // adjust path if needed
 import {
+  create_test_user,
   get_prompt_a1_for_audio,
   get_promt_json_flashcard,
 } from "./prompts.js";
@@ -478,7 +479,7 @@ app.get("/get-transcript/:videoId", async (req, res) => {
 
     const result = await fetchCaptions(videoId);
     const transcriptMap = result.map(({ text, start }) => ({ text, start }));
-
+    console.log(result);
     res.json(transcriptMap);
   } catch (error) {
     console.error(error);
@@ -514,6 +515,46 @@ app.post("/translate-text", async (req, res) => {
     const content = response.choices[0].message.content;
 
     res.json({ response: content });
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/create-test-user", async (req, res) => {
+  const { transcript, level } = req.body;
+  try {
+    let systemMessage = {
+      role: "system",
+      content: create_test_user(transcript, level),
+    };
+
+    const recentMessages = [systemMessage];
+
+    const response = await client.chat.completions.create({
+      messages: recentMessages,
+      max_tokens: 4096,
+      temperature: 1,
+      top_p: 1,
+      model: "gpt-4o",
+    });
+
+    if (response?.error !== undefined && response.status !== "200") {
+      throw response.error;
+    }
+
+    console.log(response.choices[0].message.content);
+
+    let content = response.choices[0].message.content;
+    // Elimina ```json y ```
+    if (content.startsWith("```json")) {
+      content = content
+        .replace(/^```json\s*/, "")
+        .replace(/```$/, "")
+        .trim();
+    }
+
+    res.json({ response: JSON.parse(content) });
   } catch (error) {
     console.log({ error });
     res.status(500).json({ error: error.message });

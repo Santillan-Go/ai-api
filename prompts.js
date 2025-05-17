@@ -79,6 +79,41 @@ Every script must include:
 Now generate the podcast script for the word: ${word}`;
 };
 
+export const create_test_user = (transcript, level) => {
+  return `Act as an English teacher for ${level} students. Based on the transcript I will provide, create a fun and simple English comprehension mini test to reinforce the learner's understanding.
+Use vocabulary and grammar appropriate for CEFR A2 level.
+Include exactly 5 varied questions with the following formats:
+
+Multiple Choice(multiple_choice)
+
+True or False(true_false), "answer": true or false.
+
+Fill in the Blank (with multiple options;fill_in_blank)
+
+Match Pairs (English–Spanish vocabulary)
+
+Translate a sentence from English to Spanish by selecting the correct word order from a word bank
+
+Each question should include the fields:
+
+type (e.g., multiple_choice)
+
+question or statement
+
+options if needed
+
+answer
+
+For match_pairs: use "pairs": { "word": "translation", ... } and "instructions": "Match each English word with its Spanish meaning."
+
+For translate_sentence: use sentence, wordBank, and correctOrder
+
+Use simple structures. Make it light, engaging, and focused on learning through context.
+Just return the array with each type.
+No cometas errores gramaticales o con las traducciones.
+Transcript:${transcript}`;
+};
+
 /*
 You are a skilled language learning assistant that creates short, spoken-style scripts to help Spanish-speaking users improve their English listening (A1 level). 
 
