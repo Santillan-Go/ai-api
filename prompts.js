@@ -81,6 +81,43 @@ Now generate the podcast script for the word: ${word}`;
 
 export const create_test_user = (transcript, level) => {
   return `Act as an English teacher for ${level} students. Based on the transcript I will provide, create a fun and simple English comprehension mini test to reinforce the learner's understanding.
+
+Use vocabulary and grammar appropriate for CEFR ${level} level (example: A2). Keep the questions simple and suitable for beginner to low-intermediate learners.
+
+Include exactly 5 varied questions using these formats:
+
+1. Multiple Choice ("type": "multiple_choice")
+2. True or False ("type": "true_false", answer must be true or false)
+3. Fill in the Blank (with options) ("type": "fill_in_blank")
+4. Match Pairs of vocabulary (English–Spanish) ("type": "match_pairs")
+5. Translate Sentence by selecting the correct word order from a word bank ("type": "translate_sentence")
+
+For each question include:
+
+- type (as above)
+- question or statement (depending on type)
+- options if applicable
+- answer
+- For match_pairs: include "pairs": { "word": "translation" } and "instructions": "Match each English word with its Spanish meaning."
+- For translate_sentence: include "sentence", "wordBank" (array of Spanish words), and "correctOrder" (array of correct word order)
+
+⚠️ Translation rules:
+- Use **natural, conversational Spanish**.
+- Do **not** translate word-for-word in unnatural ways.
+- Use correct grammar for Spanish learners in Latin America.
+- Translate phrases like **"I need you to stay"** as **"Necesito que te quedes"**, not **"Te necesito para quedarte"**.
+
+Be engaging and context-driven. Focus on clarity, correctness, and supporting real understanding—not just testing memory.
+
+Just return a JSON array with the 5 questions, nothing else.
+
+Transcript: ${transcript}
+`;
+};
+
+/*
+OLD ONE
+Act as an English teacher for ${level} students. Based on the transcript I will provide, create a fun and simple English comprehension mini test to reinforce the learner's understanding.
 Use vocabulary and grammar appropriate for CEFR A2 level.
 Include exactly 5 varied questions with the following formats:
 
@@ -111,8 +148,8 @@ For translate_sentence: use sentence, wordBank, and correctOrder
 Use simple structures. Make it light, engaging, and focused on learning through context.
 Just return the array with each type.
 No cometas errores gramaticales o con las traducciones.
-Transcript:${transcript}`;
-};
+Transcript:${transcript}
+*/
 
 /*
 You are a skilled language learning assistant that creates short, spoken-style scripts to help Spanish-speaking users improve their English listening (A1 level). 
