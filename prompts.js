@@ -87,7 +87,7 @@ Use vocabulary and grammar appropriate for CEFR ${level} level (example: A2). Ke
 Include exactly 5 varied questions using these formats:
 
 1. Multiple Choice ("type": "multiple_choice")
-2. True or False ("type": "true_false", answer must be true or false)
+2. True or False ("type": "true_false", answer must be true or false, "content":stament or question)
 3. Fill in the Blank (with options) ("type": "fill_in_blank")
 4. Match Pairs of vocabulary (English–Spanish) ("type": "match_pairs")
 5. Translate Sentence by selecting the correct word order from a word bank ("type": "translate_sentence")
