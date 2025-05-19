@@ -210,11 +210,14 @@ export const create_flashcard_word = (word, level, caracteritics) => {
   //PARAMETERS: word, level, caracteritics
   return `Responde como un experto educativo. responde con un objeto JSON válido, sin envolverlo en markdown, sin usar comillas escapadas innecesarias ni \n que no correspondan. Ensure that deltaBack and deltaFront uses only Delta JSON formatting. Crea el contenido basado en esto:${word}, y ${level} El objeto debe tener:
 {
-  "deltaFront": "[{"insert":"Thrive","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":/θraɪv/\n","attributes":{"bold":true,"italic":true,"align":"center"}},{"insert":"The sunflowers thrived in the sunny garden. 🌻☀️\n","attributes":{"bold":true,"align":"center"}}, {"insert": "\n"}]",
-  "deltaBack": "[{"insert":"Meaning","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":"To grow or develop successfully.  To flourish.  To prosper. ✨\n","attributes":{"align":"center"}}, {"insert": "\n"}]"
+  "deltaFront": [{"insert":"Thrive","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":/θraɪv/\n","attributes":{"bold":true,"italic":true,"align":"center"}},{"insert":"The sunflowers thrived in the sunny garden. 🌻☀️\n","attributes":{"bold":true,"align":"center"}}, {"insert": "\n"}],
+  "deltaBack": [{"insert":"Meaning","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":"To grow or develop successfully.  To flourish.  To prosper. ✨\n","attributes":{"align":"center"}}, {"insert": "\n"}]
   "mainWord":"Thrive" => la palabra que quiere el usuario puede ser una palabra o frase; ponla aquí
 "frontAudioText": Incluye el contenido(palabra principal en inglés y el ejemplo clave en inglés) que usaste en deltaFront, ejemplo: Take. Take your time.
 }
+
+No uses saltos de línea reales, usa "\\n". No uses comillas escapadas ni estructuras anidadas mal cerradas. Asegúrate que tanto deltaFront como deltaBack sean arrays de objetos Delta válidos(formato Delta).
+
 
 Reglas:
 
@@ -230,7 +233,7 @@ Reglas:
 3. deltaBack  
    - Muestra el significado de la palabra.
    - Usa el nivel adecuado según ${level}.
-  y ajustarse a las características activas: ${caracteritics}. Usa texto centrado y emojis solo si ayudan a la comprensión.
+  y ajustarse a las características: ${caracteritics}(cumple con estos). Usa texto centrado y emojis solo si ayudan a la comprensión.
 4. frontAudioText  
    - Solo incluye la palabra principal y el ejemplo clave en inglés. No incluyas pronunciación ni definición.`;
 };
