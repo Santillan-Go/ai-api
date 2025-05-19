@@ -13,6 +13,7 @@ import { uploadAudioToCloudinary } from "./services/cloudinary.js";
 
 import { db } from "./services/firebase.js"; // adjust path if needed
 import {
+  create_flashcard_word,
   create_test_user,
   get_prompt_a1_for_audio,
   get_promt_json_flashcard,
@@ -168,7 +169,14 @@ app.post("/generate-flashcards", async (req, res) => {
       console.log(`Creating flashcard for: ${word}`);
 
       try {
-        const flashcard = JSON.parse(gptResponse.choices[0].message.content);
+        let content = gptResponse.choices[0].message.content;
+        if (content.startsWith("```json")) {
+          content = content
+            .replace(/^```json\s*/, "")
+            .replace(/```$/, "")
+            .trim();
+        }
+        const flashcard = JSON.parse(content);
         if (flashcard["mainWord"]) {
           // const audioBuffer = await generateAudios(flashcard["frontAudioText"]);
           // const audioUrl = await uploadAudioToCloudinary(
@@ -329,6 +337,106 @@ app.post("/generate-flashcards", async (req, res) => {
 // app.listen(port, async () => {
 //   console.log(`Server running on http://localhost:${port}`);
 // });
+
+app.post("create-flashcard-word-phrase", async (req, res) => {
+  const { word, level } = req.body;
+  try {
+    let systemMessage = {};
+    if (word == null) {
+      systemMessage = {
+        role: "system",
+        content: create_flashcard_word("Get", level),
+      };
+    } else {
+      systemMessage = {
+        role: "system",
+        content: create_flashcard_word(word, level),
+      };
+    }
+
+    const recentMessages = [systemMessage];
+
+    const response = await client.chat.completions.create({
+      messages: recentMessages,
+      max_tokens: 4096,
+      temperature: 1,
+      top_p: 1,
+      model: "gpt-4o",
+    });
+
+    if (response?.error !== undefined && response.status !== "200") {
+      throw response.error;
+    }
+
+    console.log(response.choices[0].message.content);
+
+    let content = response.choices[0].message.content;
+    if (content.startsWith("```json")) {
+      content = content
+        .replace(/^```json\s*/, "")
+        .replace(/```$/, "")
+        .trim();
+    }
+    //  const parsed = JSON.parse(content); // <- esto lo convierte de string a objeto
+    res.json(JSON.parse(content));
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/test", async (req, res) => {
+  const { word, level } = req.body;
+  try {
+    // const response = await client.completions.create({
+    //   model: "gpt-4o", // Specify your model
+    //   prompt: prompt,
+    //   max_tokens: 100,
+    // });
+    //  const lastMessageUser = messages[messages.length - 1];
+    let systemMessage = {};
+    if (word == null) {
+      systemMessage = {
+        role: "system",
+        content: create_flashcard_word("Get", level),
+      };
+    } else {
+      systemMessage = {
+        role: "system",
+        content: create_flashcard_word(word, level),
+      };
+    }
+
+    const recentMessages = [systemMessage];
+
+    const response = await client.chat.completions.create({
+      messages: recentMessages,
+      max_tokens: 4096,
+      temperature: 1,
+      top_p: 1,
+      model: "gpt-4o",
+    });
+
+    if (response?.error !== undefined && response.status !== "200") {
+      throw response.error;
+    }
+
+    console.log(response.choices[0].message.content);
+
+    let content = response.choices[0].message.content;
+    if (content.startsWith("```json")) {
+      content = content
+        .replace(/^```json\s*/, "")
+        .replace(/```$/, "")
+        .trim();
+    }
+    //  const parsed = JSON.parse(content); // <- esto lo convierte de string a objeto
+    res.json(JSON.parse(content));
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json({ error: error.message });
+  }
+});
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`);
 });
@@ -501,7 +609,7 @@ app.post("/translate-text", async (req, res) => {
     const response = await client.chat.completions.create({
       messages: recentMessages,
       max_tokens: 4096,
-      temperature: 1,
+      temperature: 0.7, // Slightly more controlled, avoids creative but incorrect translations
       top_p: 1,
       model: "gpt-4o",
     });
@@ -523,6 +631,7 @@ app.post("/translate-text", async (req, res) => {
 
 app.post("/create-test-user", async (req, res) => {
   const { transcript, level } = req.body;
+
   try {
     let systemMessage = {
       role: "system",
@@ -534,7 +643,7 @@ app.post("/create-test-user", async (req, res) => {
     const response = await client.chat.completions.create({
       messages: recentMessages,
       max_tokens: 4096,
-      temperature: 1,
+      temperature: 0.7, // Slightly more controlled, avoids creative but incorrect translations
       top_p: 1,
       model: "gpt-4o",
     });
