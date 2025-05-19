@@ -206,7 +206,7 @@ Transcript: ${transcript}
   // `;
 };
 
-export const create_flashcard_word = (word, level) => {
+export const create_flashcard_word = (word, level, caracteritics) => {
   //PARAMETERS: word, level, caracteritics
   return `Responde como un experto educativo. responde con un objeto JSON válido, sin envolverlo en markdown, sin usar comillas escapadas innecesarias ni \n que no correspondan. Ensure that deltaBack and deltaFront uses only Delta JSON formatting. Crea el contenido basado en esto:${word}, y ${level} El objeto debe tener:
 {
@@ -230,7 +230,7 @@ Reglas:
 3. deltaBack  
    - Muestra el significado de la palabra.
    - Usa el nivel adecuado según ${level}.
-  y ajustarse a las características activas: meaning in english, meaning in spanish, example translated to spanish. Usa texto centrado y emojis solo si ayudan a la comprensión.
+  y ajustarse a las características activas: ${caracteritics}. Usa texto centrado y emojis solo si ayudan a la comprensión.
 4. frontAudioText  
    - Solo incluye la palabra principal y el ejemplo clave en inglés. No incluyas pronunciación ni definición.`;
 };

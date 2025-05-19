@@ -338,19 +338,21 @@ app.post("/generate-flashcards", async (req, res) => {
 //   console.log(`Server running on http://localhost:${port}`);
 // });
 
-app.post("create-flashcard-word-phrase", async (req, res) => {
-  const { word, level } = req.body;
+app.post("/create-flashcard-word-phrase", async (req, res) => {
+  //PARAMETERS: word, level, caracteritics
+  const { word, level, caracteritics } = req.body;
+  console.log({ word, level, caracteritics });
   try {
     let systemMessage = {};
     if (word == null) {
       systemMessage = {
         role: "system",
-        content: create_flashcard_word("Get", level),
+        content: create_flashcard_word("Get", level, caracteritics),
       };
     } else {
       systemMessage = {
         role: "system",
-        content: create_flashcard_word(word, level),
+        content: create_flashcard_word(word, level, caracteritics),
       };
     }
 
