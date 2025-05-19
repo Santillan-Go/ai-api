@@ -217,7 +217,7 @@ export const create_flashcard_word = (word, level, caracteritics) => {
 }
 
 No uses saltos de línea reales, usa "\\n". No uses comillas escapadas ni estructuras anidadas mal cerradas. Asegúrate que tanto deltaFront como deltaBack sean arrays de objetos Delta válidos(formato Delta).
-
+✅ Asegúrate de que tanto deltaFront como deltaBack terminen siempre con un bloque {"insert":"\n"} al final.
 
 Reglas:
 
