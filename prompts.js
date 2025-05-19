@@ -216,7 +216,7 @@ export const create_flashcard_word = (word, level, caracteritics) => {
 "frontAudioText": Incluye el contenido(palabra principal en inglés y el ejemplo clave en inglés) que usaste en deltaFront, ejemplo: Take. Take your time.
 }
 
-No uses saltos de línea reales, usa "\\n". No uses comillas escapadas ni estructuras anidadas mal cerradas. Asegúrate que tanto deltaFront como deltaBack sean arrays de objetos Delta válidos(formato Delta).
+No uses saltos de línea reales, usa "\\n", Todos los valores de "insert" deben usar "\\n" en lugar de saltos de línea reales. No uses comillas escapadas ni estructuras anidadas mal cerradas. Asegúrate que tanto deltaFront como deltaBack sean arrays de objetos Delta válidos(formato Delta).
 ✅ Asegúrate de que tanto deltaFront como deltaBack terminen siempre con un bloque {"insert":"\n"} al final.
 
 Reglas:
