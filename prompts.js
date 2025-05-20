@@ -139,7 +139,7 @@ Include 1 question of each of the following types:
 
 3. Fill in the Blank (with options)  
   - "type": "fill_in_blank"  
-  - Include: "sentence" (with a blank like "___"), "options" (array), and correct "answer"  
+  - Include: "question" (with a blank like "___"), "options" (array), and correct "answer"  
   - Use a short quote from the video with a missing word, preferably one that’s emotional or important.
 
 4. Match Vocabulary  
