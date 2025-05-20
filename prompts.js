@@ -153,7 +153,7 @@ Include 1 question of each of the following types:
   - "type": "translate_sentence"  
   - Include:  
     - "sentence": (a simple English sentence, e.g., "I need you to stay")  
-    - "wordBank": (array of Spanish words,  don't make mistake with translation of this words)  
+    - "wordBank": (array of Spanish words,  don't make mistake with translation of this words, add all the words that are in correctOrder)  
     - "correctOrder": (array of words in the correct order)
 
 ⚠️ Translation rules:
