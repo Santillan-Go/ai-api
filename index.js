@@ -603,6 +603,7 @@ app.get("/get-transcript/:videoId", async (req, res) => {
 
 app.post("/translate-text", async (req, res) => {
   const { text } = req.body;
+  console.log({ text });
   try {
     let systemMessage = {
       role: "system",
