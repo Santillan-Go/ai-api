@@ -607,9 +607,9 @@ app.post("/translate-text", async (req, res) => {
   try {
     let systemMessage = {
       role: "system",
-      content: `Traduce el siguiente texto(${text}) al español de forma natural y gramaticalmente correcta, como si estuvieras enseñando a un estudiante de inglés. Solo responde con la traducción, sin explicaciones.
-`,
+      content: `Traduce este texto al español de forma natural y gramaticalmente correcta, como si estuvieras enseñando a un estudiante de inglés. Solo responde con la traducción, sin explicaciones:\n\n"${text}`,
     };
+    //content: `Traduce este texto al español de forma natural y gramaticalmente correcta, como si estuvieras enseñando a un estudiante de inglés. Solo responde con la traducción, sin explicaciones:\n\n"${text}"`
 
     const recentMessages = [systemMessage];
 
