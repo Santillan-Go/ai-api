@@ -236,15 +236,25 @@ Reglas:
    - Incluye:
      a) La palabra o frase en inglés (centrada, en negrita, cursiva y con color)
      b) Su pronunciación (ej. /θraɪv/)
-     c) Un ejemplo en inglés con emojis (🌻☀️), si es necesario.
+     c) Un ejemplo en inglés con emojis (🌻☀️), si es necesario(el ejemplo relacionado con ${word}).
    - Todo el contenido debe estar centrado.
    - No incluyas la definición aquí.
 3. deltaBack  
+- Si la palabra o frase es corta (hasta 3 palabras), incluye:
    - Muestra el significado de la palabra.
    - Usa el nivel adecuado según ${level}.
   y ajustarse a las características: ${caracteritics}(cumple con estos). Usa texto centrado y emojis solo si ayudan a la comprensión.
+- Si es una frase larga (más de 3 palabras), Solo incluye el ejemplo traducido en español
 4. frontAudioText  
-   - Solo incluye la palabra principal y el ejemplo clave en inglés. No incluyas pronunciación ni definición.`;
+   - Si la palabra o frase es corta (hasta 3 palabras), incluye:  
+     a) La palabra o frase principal  
+     b) El ejemplo en inglés  
+   - Si es una frase larga (más de 3 palabras), **no repitas la frase**. Solo incluye el ejemplo en inglés.
+   
+   📌 Si la entrada es una frase larga (más de 3 palabras), **omite la pronunciación**, ya que no es útil ni natural en esos casos. solo incluye el ejemplo usado en deltaFront traducido en español  en deltaBack.  
+🔊 Para el campo frontAudioText, **no repitas la frase**. En este caso, solo incluye el ejemplo usado en deltaFront.  
+📌 Si la frase es corta (3 palabras o menos) y tiene sentido fonético (como "I can fly"), puedes incluir la pronunciación en deltaFront.  
+🔊 En ese caso, frontAudioText debe incluir la palabra/frase principal y el ejemplo.`;
 };
 
 /*
