@@ -346,17 +346,20 @@ app.post("/create-flashcard-word-phrase", async (req, res) => {
   //PARAMETERS: word, level, caracteritics
   const { word, level, caracteritics } = req.body;
   console.log({ word, level, caracteritics });
+
+  let caracteriticsUser =
+    caracteritics ?? "Meaning in english, Example in spanish";
   try {
     let systemMessage = {};
     if (word == null) {
       systemMessage = {
         role: "system",
-        content: create_flashcard_word("Get", level, caracteritics),
+        content: create_flashcard_word("Get", level, caracteriticsUser),
       };
     } else {
       systemMessage = {
         role: "system",
-        content: create_flashcard_word(word, level, caracteritics),
+        content: create_flashcard_word(word, level, caracteriticsUser),
       };
     }
 
