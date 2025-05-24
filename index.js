@@ -14,6 +14,7 @@ import { uploadAudioToCloudinary } from "./services/cloudinary.js";
 import { db } from "./services/firebase.js"; // adjust path if needed
 import {
   create_flashcard_word,
+  create_flashcard_word_long,
   create_test_user,
   get_prompt_a1_for_audio,
   get_promt_json_flashcard,
@@ -342,6 +343,9 @@ app.post("/generate-flashcards", async (req, res) => {
 // app.listen(port, async () => {
 //   console.log(`Server running on http://localhost:${port}`);
 // });
+function isLongPhrase(text) {
+  return text.trim().split(/\s+/).length > 4;
+}
 
 app.post("/create-flashcard-word-phrase", async (req, res) => {
   //PARAMETERS: word, level, caracteritics
@@ -358,10 +362,17 @@ app.post("/create-flashcard-word-phrase", async (req, res) => {
         content: create_flashcard_word("Get", level, caracteriticsUser),
       };
     } else {
-      systemMessage = {
-        role: "system",
-        content: create_flashcard_word(word, level, caracteriticsUser),
-      };
+      if (isLongPhrase(word)) {
+        systemMessage = {
+          role: "system",
+          content: create_flashcard_word_long(word, level),
+        };
+      } else {
+        systemMessage = {
+          role: "system",
+          content: create_flashcard_word(word, level, caracteriticsUser),
+        };
+      }
     }
 
     const recentMessages = [systemMessage];

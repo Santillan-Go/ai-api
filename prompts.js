@@ -217,7 +217,73 @@ Responde como un experto educativo. responde con un objeto JSON válido, sin env
 
 export const create_flashcard_word = (word, level, caracteritics) => {
   //PARAMETERS: word, level, caracteritics
+  return `Responde como un experto educativo. responde con un objeto JSON válido, sin usar comillas escapadas innecesarias ni \\n que no correspondan. Asegúrate que deltaBack y deltaFront usen solo el formato JSON Delta. Crea el contenido basado en esta palabra: "${word}", y nivel: "${level}". El objeto debe tener la siguiente estructura:
+{
+  "deltaFront": [{"insert":"Thrive","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":/θraɪv/\n","attributes":{"bold":true,"italic":true,"align":"center"}},{"insert":"The sunflowers thrived in the sunny garden. 🌻☀️\n","attributes":{"bold":true,"align":"center"}}, {"insert": "\n"}],
+  "deltaBack": [{"insert":"Meaning","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":"To grow or develop successfully.  To flourish.  To prosper. ✨\n","attributes":{"align":"center"}}, {"insert": "\n"}]
+  "mainWord":"Thrive" => la palabra que quiere el usuario puede ser una palabra o frase; ponla aquí
+"frontAudioText": Incluye el contenido(palabra principal en inglés y el ejemplo clave en inglés) que usaste en deltaFront, ejemplo: Take. Take your time.
+}
+
+No uses saltos de línea reales, usa "\\n", Todos los valores de "insert" deben usar "\\n" en lugar de saltos de línea reales. No uses comillas escapadas ni estructuras anidadas mal cerradas. Asegúrate que tanto deltaFront como deltaBack sean arrays de objetos Delta válidos(formato Delta).
+✅ Asegúrate de que tanto deltaFront como deltaBack terminen siempre con un bloque {"insert":"\n"} al final.
+
+Reglas:
+
+1. mainWord(${word})  
+   - Si la palabra o frase no está en inglés, tradúcela al inglés antes de crear la flashcard.
+2. deltaFront  
+   - Incluye:
+     a) La palabra o frase en inglés (centrada, en negrita, cursiva y con color)
+     b) Su pronunciación (ej. /θraɪv/)
+     c) Un ejemplo en inglés con emojis (relacionados), si es necesario(el ejemplo relacionado con ${word}).
+   - Todo el contenido debe estar centrado.
+   - No incluyas la definición aquí.
+3. deltaBack  
+- Si la palabra o frase es corta (hasta 3 palabras), incluye:
+   - Muestra el significado de la palabra.
+   - Usa el nivel adecuado según ${level}.
+  y ajustarse a las características: ${caracteritics}(cumple con estos). Usa texto centrado y emojis solo si ayudan a la comprensión.
+
+4. frontAudioText  
+   - Si la palabra o frase es corta (hasta 3 palabras), incluye:  
+     a) La palabra o frase principal  
+     b) El ejemplo en inglés  
+`;
+};
+
+export const create_flashcard_word_long = (word, level) => {
+  //PARAMETERS: word, level, caracteritics
   return `Responde como un experto educativo. responde con un objeto JSON válido, sin envolverlo en markdown, sin usar comillas escapadas innecesarias ni \\n que no correspondan. Asegúrate que deltaBack y deltaFront usen solo el formato JSON Delta. Crea el contenido basado en esta palabra: "${word}", y nivel: "${level}". El objeto debe tener la siguiente estructura:
+{
+  "deltaFront": [{"insert":Ain't no way that I can leave you stranded","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":"I know you're going through a tough time, but ain't no way that I can leave you stranded.\n","attributes":{"bold":true,"align":"center"}}, {"insert": "\n"}],
+  "deltaBack": [{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":"Sé que estás pasando por un momento difícil, pero de ninguna manera te voy a dejar abandonado.\n","attributes":{"align":"center"}}, {"insert": "\n"}]
+  "mainWord":"Thrive" => la palabra que quiere el usuario puede ser una palabra o frase; ponla aquí
+"frontAudioText": Incluye el contenido(incluye el ejemplo clave en inglés) que usaste en deltaFront, ejemplo:  Take your time.
+}
+
+No uses saltos de línea reales, usa "\\n", Todos los valores de "insert" deben usar "\\n" en lugar de saltos de línea reales. No uses comillas escapadas ni estructuras anidadas mal cerradas. Asegúrate que tanto deltaFront como deltaBack sean arrays de objetos Delta válidos(formato Delta).
+✅ Asegúrate de que tanto deltaFront como deltaBack terminen siempre con un bloque {"insert":"\n"} al final.
+
+Reglas:
+
+1. mainWord(${word})  
+   - Si la palabra o frase no está en inglés, tradúcela al inglés antes de crear la flashcard.
+2. deltaFront  
+   - Incluye:
+     a) La palabra o frase en inglés (centrada, en negrita, cursiva y con color)
+     c) Un ejemplo en inglés con emojis (🌻☀️), si es necesario(el ejemplo relacionado con ${word}).
+   - Todo el contenido debe estar centrado.
+3. deltaBack  
+- incluye:
+   - Muestra el traducción de la palabra.
+4. frontAudioText  
+   -  Solo incluye el ejemplo en inglés.`;
+};
+
+/*
+OLD_PROMPT_FOR_FLASHCARD_WORD
+Responde como un experto educativo. responde con un objeto JSON válido, sin envolverlo en markdown, sin usar comillas escapadas innecesarias ni \\n que no correspondan. Asegúrate que deltaBack y deltaFront usen solo el formato JSON Delta. Crea el contenido basado en esta palabra: "${word}", y nivel: "${level}". El objeto debe tener la siguiente estructura:
 {
   "deltaFront": [{"insert":"Thrive","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":/θraɪv/\n","attributes":{"bold":true,"italic":true,"align":"center"}},{"insert":"The sunflowers thrived in the sunny garden. 🌻☀️\n","attributes":{"bold":true,"align":"center"}}, {"insert": "\n"}],
   "deltaBack": [{"insert":"Meaning","attributes":{"bold":true,"align":"center","italic":true,"color":"#FF1E88E5"}},{"insert":"\n","attributes":{"bold":true,"align":"center","header":3}},{"insert":"To grow or develop successfully.  To flourish.  To prosper. ✨\n","attributes":{"align":"center"}}, {"insert": "\n"}]
@@ -255,7 +321,8 @@ Reglas:
 🔊 Para el campo frontAudioText, **no repitas la frase**. En este caso, solo incluye el ejemplo usado en deltaFront.  
 📌 Si la frase es corta (3 palabras o menos) y tiene sentido fonético (como "I can fly"), puedes incluir la pronunciación en deltaFront.  
 🔊 En ese caso, frontAudioText debe incluir la palabra/frase principal y el ejemplo.`;
-};
+
+*/
 
 /*
 OLD ONE
