@@ -344,13 +344,13 @@ app.post("/generate-flashcards", async (req, res) => {
 //   console.log(`Server running on http://localhost:${port}`);
 // });
 function isLongPhrase(text) {
-  return text.trim().split(/\s+/).length > 4;
+  return text.trim().split(/\s+/).length >= 4;
 }
 
 app.post("/create-flashcard-word-phrase", async (req, res) => {
   //PARAMETERS: word, level, caracteritics
-  const { word, level, caracteritics } = req.body;
-  console.log({ word, level, caracteritics });
+  const { word, level, caracteritics, contextWord } = req.body;
+  console.log({ word, level, caracteritics, contextWord });
 
   let caracteriticsUser =
     caracteritics ?? "Meaning in english, Example in spanish";
@@ -359,18 +359,28 @@ app.post("/create-flashcard-word-phrase", async (req, res) => {
     if (word == null) {
       systemMessage = {
         role: "system",
-        content: create_flashcard_word("Get", level, caracteriticsUser),
+        content: create_flashcard_word(
+          "Get",
+          level,
+          caracteriticsUser,
+          contextWord
+        ),
       };
     } else {
       if (isLongPhrase(word)) {
         systemMessage = {
           role: "system",
-          content: create_flashcard_word_long(word, level),
+          content: create_flashcard_word_long(word, level, contextWord),
         };
       } else {
         systemMessage = {
           role: "system",
-          content: create_flashcard_word(word, level, caracteriticsUser),
+          content: create_flashcard_word(
+            word,
+            level,
+            caracteriticsUser,
+            contextWord
+          ),
         };
       }
     }

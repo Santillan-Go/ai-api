@@ -215,7 +215,12 @@ old:
 Responde como un experto educativo. responde con un objeto JSON válido, sin envolverlo en markdown, sin usar comillas escapadas innecesarias ni \n que no correspondan. Ensure that deltaBack and deltaFront uses only Delta JSON formatting. Crea el contenido basado en esta palabra ${word}, y  ${level} El objeto debe tener:
 */
 
-export const create_flashcard_word = (word, level, caracteritics) => {
+export const create_flashcard_word = (
+  word,
+  level,
+  caracteritics,
+  contextWord
+) => {
   //PARAMETERS: word, level, caracteritics
   return `Responde como un experto educativo. responde con un objeto JSON válido, sin usar comillas escapadas innecesarias ni \\n que no correspondan. Asegúrate que deltaBack y deltaFront usen solo el formato JSON Delta. Crea el contenido basado en esta palabra: "${word}", y nivel: "${level}". El objeto debe tener la siguiente estructura:
 {
@@ -238,7 +243,7 @@ Reglas:
      b) Su pronunciación (ej. /θraɪv/)
      c) Un ejemplo en inglés con emojis (relacionados), si es necesario(el ejemplo relacionado con ${word}).
    - Todo el contenido debe estar centrado.
-   - No incluyas la definición aquí.
+   - para crear el ejemplo basate en el pequeño contexto:${contextWord}
 3. deltaBack  
 - Si la palabra o frase es corta (hasta 3 palabras), incluye:
    - Muestra el significado de la palabra.
@@ -252,7 +257,7 @@ Reglas:
 `;
 };
 
-export const create_flashcard_word_long = (word, level) => {
+export const create_flashcard_word_long = (word, level, contextWord) => {
   //PARAMETERS: word, level, caracteritics
   return `Responde como un experto educativo. responde con un objeto JSON válido, sin envolverlo en markdown, sin usar comillas escapadas innecesarias ni \\n que no correspondan. Asegúrate que deltaBack y deltaFront usen solo el formato JSON Delta. Crea el contenido basado en esta palabra: "${word}", y nivel: "${level}". El objeto debe tener la siguiente estructura:
 {
@@ -274,6 +279,7 @@ Reglas:
      a) La palabra o frase en inglés (centrada, en negrita, cursiva y con color)
      c) Un ejemplo en inglés con emojis (🌻☀️), si es necesario(el ejemplo relacionado con ${word}).
    - Todo el contenido debe estar centrado.
+   - para crear el ejemplo basate en el pequeño contexto:${contextWord}
 3. deltaBack  
 - incluye:
    - Muestra el traducción de la palabra.
