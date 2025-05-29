@@ -16,6 +16,7 @@ import {
   create_flashcard_word,
   create_flashcard_word_long,
   create_test_user,
+  create_test_user_a1_to_a2,
   get_prompt_a1_for_audio,
   get_promt_json_flashcard,
 } from "./prompts.js";
@@ -527,6 +528,7 @@ async function getVideoDetails(videoId) {
   const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoId}&key=${YOUTUBE_API_KEY}`;
   const response = await fetch(url);
   const data = await response.json();
+  console.log(data.items[0]?.contentDetails?.caption);
   if (data.items[0]?.contentDetails?.caption === "true") {
     const seconds = parseISODuration(data.items[0]?.contentDetails.duration);
     return {
@@ -618,7 +620,10 @@ app.get("/get-transcript/:videoId", async (req, res) => {
 
     const result = await fetchCaptions(videoId);
     const transcriptMap = result.map(({ text, start }) => ({ text, start }));
-    console.log(result);
+    const justText = transcriptMap.map(({ text }) => text).join(" "); // Remove the second parameter
+    console.log(justText);
+    // console.log(result);
+
     res.json(transcriptMap);
   } catch (error) {
     console.error(error);
@@ -665,9 +670,13 @@ app.post("/create-test-user", async (req, res) => {
   const { transcript, level } = req.body;
 
   try {
+    let finalPrompt =
+      level.includes("A1") || level.includes("A2")
+        ? create_test_user_a1_to_a2(transcript, level)
+        : create_test_user(transcript, level);
     let systemMessage = {
       role: "system",
-      content: create_test_user(transcript, level),
+      content: finalPrompt,
     };
 
     const recentMessages = [systemMessage];

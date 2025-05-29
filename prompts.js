@@ -54,7 +54,6 @@ Ejemplo de contenido que debe tener:
 
 `;
 }
-
 //GOOD
 //FOR AUDIOS STRUCTURE; SCRIPT
 export const get_prompt_a1_for_audio = (word) => {
@@ -167,6 +166,7 @@ Include 1 question of each of the following types:
 - Avoid including "que" unless it's **actually required** in the natural translation.
 - add Emojis where it needed
 
+- Las instrucciones de cada tipo de pregunta deben estar en español claro y natural (dirigido a hablantes nativos de español latinoamericano con nivel básico de inglés).
 Return a JSON array with exactly 5 questions (no explanation, no extra text — just the JSON).
 Transcript: ${transcript}
 `;
@@ -206,6 +206,66 @@ Transcript: ${transcript}
   // `;
 };
 
+export const create_test_user_a1_to_a2 = (transcript, level) => {
+  return `Act as an experienced English teacher for ${level} students. Based on the transcript I will provide, create a short, fun English comprehension mini test with **exactly 5 varied questions** to reinforce understanding of the video.
+
+Use vocabulary and grammar appropriate for CEFR ${level}. Keep all questions clear, simple, and emotionally engaging for beginner to low-intermediate learners.
+
+Make sure each question feels **natural and meaningful** — not robotic or mechanical. Use language that connects emotionally with learners.
+
+Include 1 question of each of the following types:
+1. Translate Sentence (word order selection)  
+  - "type": "translate_sentence"  
+  - Include:  
+    - "sentence": (a simple English sentence, e.g., "I need you to stay")  
+    - "wordBank": (array of Spanish words,  don't make mistake with translation of this words, add all the words that are in correctOrder)  
+    - "correctOrder": (array of words in the correct order)
+
+
+2. True or False  
+  - "type": "true_false"  
+  - Include: "content" (a simple, natural-sounding statement **or** question from the video) and correct "answer" (true or false)  
+  - ✅ Use **clear facts stated directly in the transcript**, not inferred meanings or assumptions.  
+  - 🔄 Use simple, emotional statements in plain English. Avoid robotic or overly complex phrases.  
+  - Example: "The singer says he can't live without the other person."
+
+3. Fill in the Blank (with options)  
+  - "type": "fill_in_blank"  
+  - Include: "question" (with a blank like "___"), "options" (array), and correct "answer"  
+  - Use a short quote from the video with a missing word, preferably one that’s emotional or important.
+
+4. Match Vocabulary  
+  - "type": "match_pairs"  
+  - Include:  
+    - "instructions": "Match each English word with its Spanish meaning."  
+    - "pairs": { "EnglishWord1": "SpanishWord1", "EnglishWord2": "SpanishWord2" }  
+  - Use 4–5 meaningful and useful words from the video, focusing on verbs, feelings, or relationship-related words.
+
+5. Translate Sentence (word order selection)  
+  - "type": "translate_sentence"  
+  - Include:  
+    - "sentence": (a simple English sentence, e.g., "I need you to stay")  
+    - "wordBank": (array of Spanish words,  don't make mistake with translation of this words, add all the words that are in correctOrder)  
+    - "correctOrder": (array of words in the correct order)
+
+⚠️ Translation rules:
+
+- Use **natural Latin American Spanish**, like something a native speaker would actually say — not robotic or word-for-word literal.
+- NEVER use incorrect or conjugated words like "iré" when the correct word is "ir".
+- Only use **real, fluent Spanish phrases**, e.g., "Nunca te dejaré ir" instead of awkward phrases like "Nunca te dejaré que te vayas".
+- "correctOrder" must reflect a real Spanish sentence — simple, fluent, and grammatically correct.
+- "wordBank" must include **all words used in correctOrder**, plus **3–4 extra words** that are reasonable **alternate translations** or **context-related words** from the transcript — **but never misleading or incorrect**.
+- Do NOT include unnecessary or unrelated words. The extras must be semantically related to the sentence or its translation.
+- Avoid including "que" unless it's **actually required** in the natural translation.
+- add Emojis where it needed
+
+- Las instrucciones de cada tipo de pregunta deben estar en español claro y natural (dirigido a hablantes nativos de español latinoamericano con nivel básico de inglés).
+Return a JSON array with exactly 5 questions (no explanation, no extra text — just the JSON).
+Transcript: ${transcript}
+`;
+
+  // `;
+};
 /*
 new
 `Responde como un experto educativo. responde con un objeto JSON válido, sin envolverlo en markdown, sin usar comillas escapadas innecesarias ni \\n que no correspondan. Asegúrate que deltaBack y deltaFront usen solo el formato JSON Delta. Crea el contenido basado en esta palabra: "${word}", y nivel: "${level}". El objeto debe tener la siguiente estructura:
