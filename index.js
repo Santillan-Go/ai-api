@@ -20,6 +20,8 @@ import {
   get_prompt_a1_for_audio,
   get_promt_json_flashcard,
 } from "./prompts.js";
+import { createAudioBooks, transcribeUrl } from "./books/create_audio_books.js";
+import { generateAudios } from "./services/generate_audio.js";
 
 dotenv.config();
 
@@ -56,6 +58,29 @@ const client = new AzureOpenAI({
 
 app.get("/", async (req, res) => {
   res.json({ message: "Hello" });
+});
+
+app.get("/responses", async (req, res) => {
+  try {
+    // Get reference to the collection
+    const userResponsesRef = db.collection("user_responses");
+
+    // Convertir el snapshot a un array de documentos
+    const responses = [];
+    snapshot.forEach((doc) => {
+      responses.push({
+        id: doc.id,
+        ...doc.data(),
+      });
+    });
+
+    res.json({
+      message: "Responses fetched successfully",
+      responses: responses, // Ahora es un array de documentos
+    });
+  } catch (error) {
+    console.error("❌ Error:", error);
+  }
 });
 app.post("/generate-text", async (req, res) => {
   const { messages, level } = req.body;
@@ -473,45 +498,92 @@ app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`);
 });
 
-export default app;
-
-async function generateAudios(text) {
-  const apiKey = process.env.ELEVENLAB_KEY;
+app.get("/create-transcript", async (req, res) => {
   try {
-    const response = await fetch(
-      "https://api.elevenlabs.io/v1/text-to-speech/TX3LPaxmHKxFdv7VOQHJ",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          text,
-          model_id: "eleven_turbo_v2_5",
-          voice_id: "TX3LPaxmHKxFdv7VOQHJ",
-          voice_settings: {
-            stability: 0.5,
-            similarity_boost: 1.0,
-          },
-        }),
-        headers: {
-          accept: "audio/mpeg",
-          "xi-api-key": apiKey,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const result = await transcribeUrl();
+    res.json({ result });
+  } catch (error) {
+    res.json({ message: error });
+  }
+});
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+app.get("/create-audio-book", async (req, res) => {
+  try {
+    const resultTranscript = await createAudioBooks();
+    res.json({
+      message: "Audio book created successfully",
+      transcript: resultTranscript,
+    });
+  } catch (error) {
+    res.json({ message: error });
+  }
+});
+
+app.get("/get-book-transcript/:id", async (req, res) => {
+  //transcript_books
+  try {
+    // get ID from request parameters
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ error: "Missing book ID" });
+    }
+    const transcriptBook = await db
+      .collection("transcript_books")
+      .doc(id)
+      .get();
+
+    if (!transcriptBook.exists) {
+      return res.status(404).json({ error: "Book not found" });
     }
 
-    const audioBuffer = await response.arrayBuffer();
-    return audioBuffer;
-  } catch (error) {
-    console.error("Error generating audio:", error);
-    throw error;
-  }
+    //transcript is like:
+    /*
+    {
+    audio_url:
+"https://res.cloudinary.com/dzjisimpi/video/upload/v1749053338/quickcard-audios/quickcard-audios/Atomic%20Habits_4.mp3"
+,
+paragraphs:[
+{
+start:0
+end:19.795
+sentences:[{
+end:4.16,
+start:0,
+text:"Atomic habits are the small changes that lead to remarkable results."
+}]
 }
+]
+}
+    */
+    res.json({
+      message: "Book transcript fetched successfully",
+      id: transcriptBook.id,
+      transcript: transcriptBook.data().transcript,
+    });
+  } catch (error) {
+    res.json({ message: error.message }); // Handle the error appropriately
+  }
+});
 
-const YOUTUBE_API_KEY = "AIzaSyB4JJlR0DbGgWc5APCfRtH-5YmLJnUMmfk";
+app.get("/get-books", async (req, res) => {
+  try {
+    const books = await db.collection("library_books").get();
+
+    res.json({
+      message: "Books fetched successfully",
+      books: books.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })),
+    });
+  } catch (error) {
+    res.json({ message: error.message }); // Handle the error appropriately
+  }
+});
+
+export default app;
+
+const YOUTUBE_API_KEY = "hola";
 
 function parseISODuration(duration) {
   const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
