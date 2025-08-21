@@ -1,7 +1,7 @@
 import { AzureOpenAI } from "openai";
 import express from "express";
 import cors from "cors";
-
+import he from "he";
 import dotenv from "dotenv";
 //import TranscriptAPI from 'youtube-transcript-api';
 // Import the functions you need from the SDKs you need
@@ -18,10 +18,13 @@ import {
   create_test_user,
   create_test_user_a1_to_a2,
   get_prompt_a1_for_audio,
+  get_prompt_json_phrase,
   get_promt_json_flashcard,
 } from "./prompts.js";
 import { createAudioBooks, transcribeUrl } from "./books/create_audio_books.js";
 import { generateAudios } from "./services/generate_audio.js";
+// import { getSubtitles } from "youtube-captions-scraper";
+import youtubeDl from "youtube-dl-exec";
 
 dotenv.config();
 
@@ -262,102 +265,103 @@ app.post("/generate-flashcards", async (req, res) => {
     // Elimina los que fallaron
     const validFlashcards = flashcardsWithAudio.filter(Boolean);
 
-    for (const flashcard of validFlashcards) {
-      // 2. Crear guion para audio
-      const scriptResponse = await client.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: get_prompt_a1_for_audio(flashcard["mainWord"]),
-          },
-        ],
-        max_tokens: 4096,
-        temperature: 1,
-        top_p: 1,
-        model: "gpt-4o",
-      });
+    // for (const flashcard of validFlashcards) {
+    //   // 2. Crear guion para audio
+    //   const scriptResponse = await client.chat.completions.create({
+    //     messages: [
+    //       {
+    //         role: "system",
+    //         content: get_prompt_a1_for_audio(flashcard["mainWord"]),
+    //       },
+    //     ],
+    //     max_tokens: 4096,
+    //     temperature: 1,
+    //     top_p: 1,
+    //     model: "gpt-4o",
+    //   });
 
-      const script = scriptResponse.choices[0].message.content;
-      console.log(`Generated script for ${flashcard.mainWord}:`, script);
-      const id = crypto.randomUUID();
-      audios.push({
-        id,
-        mainWord: flashcard["mainWord"],
-        idCard: flashcard["id"],
-        transcriptAudio: script,
-      });
-    }
+    //   const script = scriptResponse.choices[0].message.content;
+    //   console.log(`Generated script for ${flashcard.mainWord}:`, script);
+    //   const id = crypto.randomUUID();
+    //   audios.push({
+    //     id,
+    //     mainWord: flashcard["mainWord"],
+    //     idCard: flashcard["id"],
+    //     transcriptAudio: script,
+    //   });
+    // }
     // ITERAMOS  PARA CREAR AUDIOS PARA CADA GUION CREADA
     //CREATE A NEW VARIABLES TO COPY AUDIOS
 
-    await Promise.all(
-      audios.map(async (audio) => {
-        try {
-          const audioBuffer = await generateAudios(audio.transcriptAudio);
-          const audioUrl = await uploadAudioToCloudinary(
-            audioBuffer,
-            audio.mainWord
-          );
-          console.log(`Audio uploaded to: ${audioUrl}`);
+    // await Promise.all(
+    //   audios.map(async (audio) => {
+    //     try {
+    //       const audioBuffer = await generateAudios(audio.transcriptAudio);
+    //       const audioUrl = await uploadAudioToCloudinary(
+    //         audioBuffer,
+    //         audio.mainWord
+    //       );
+    //       console.log(`Audio uploaded to: ${audioUrl}`);
 
-          const audioIndex = audios.findIndex((a) => a.id === audio.id);
-          if (audioIndex !== -1) {
-            audios[audioIndex] = {
-              ...audio,
-              urlAudio: audioUrl,
-            };
-          }
-        } catch (error) {
-          console.error(`Error generating audio for ${audio.mainWord}:`, error);
-        }
-      })
-    );
+    //       const audioIndex = audios.findIndex((a) => a.id === audio.id);
+    //       if (audioIndex !== -1) {
+    //         audios[audioIndex] = {
+    //           ...audio,
+    //           urlAudio: audioUrl,
+    //         };
+    //       }
+    //     } catch (error) {
+    //       console.error(`Error generating audio for ${audio.mainWord}:`, error);
+    //     }
+    //   })
+    // );
+    //WE DON'T NEED THE CODE ABOVE
 
     //LUEGO GUARDAMOS LOS AUDIOS(CON SU PROPIEDADES) Y LAS FLASHCARDS(CON SUS PROPIEDADES) EN FIREBASE( RELACIONADAS CON UNA PROPIEDAD)
 
-    // for (const flashcard of validFlashcards) {
-    //   // Get the matching audio
-    //   const audio = audios.find((a) => a.idCard === flashcard.id);
-    //   if (!audio) continue;
-    //   const now = new Date();
-    //   const isoString = now.toISOString();
-    //   // Save flashcard
-    //   // Save flashcard
-    //   const deltaFront = ensureFinalNewline(flashcard.deltaFront);
-    //   const deltaBack = ensureFinalNewline(flashcard.deltaBack);
-    //   flashcard["deltaFront"] = deltaFront;
-    //   flashcard["deltaBack"] = deltaBack;
+    for (const flashcard of validFlashcards) {
+      // Get the matching audio
+      // const audio = audios.find((a) => a.idCard === flashcard.id);
+      // if (!audio) continue;
+      const now = new Date();
+      const isoString = now.toISOString();
+      // Save flashcard
+      // Save flashcard
+      const deltaFront = ensureFinalNewline(flashcard.deltaFront);
+      const deltaBack = ensureFinalNewline(flashcard.deltaBack);
+      flashcard["deltaFront"] = deltaFront;
+      flashcard["deltaBack"] = deltaBack;
 
-    //   await db
-    //     .collection("flashcards")
-    //     .doc(flashcard.id) // You can generate IDs like `A1_flashcardId1` if you want
-    //     .set({
-    //       ...flashcard,
-    //       lastReviewedDate: isoString,
-    //       nextReviewDate: isoString,
-    //       interval: 0,
-    //       easeFactor: 2.5,
-    //       repetitionCount: 0,
-    //       lapses: 0,
-    //       score: 0,
-    //       level, // Keep this so you can filter/query flashcards by level later
-    //     });
+      await db
+        .collection("flashcards")
+        .doc(flashcard.id) // You can generate IDs like `A1_flashcardId1` if you want
+        .set({
+          ...flashcard,
+          lastReviewedDate: isoString,
+          nextReviewDate: isoString,
+          interval: 0,
+          easeFactor: 2.5,
+          repetitionCount: 0,
+          lapses: 0,
+          score: 0,
+          level, // Keep this so you can filter/query flashcards by level later
+        });
 
-    //   // Save audio
-    //   await db
-    //     .collection("audios")
-    //     .doc(audio.id) // Or format like `A1_audioId1`
-    //     .set({
-    //       ...audio,
-    //       lastReviewedDate: isoString,
-    //       nextReviewDate: isoString,
-    //       interval: 0,
-    //       easeFactor: 2.5,
-    //       repetitionCount: 0,
-    //       score: 0,
-    //       level, // optional but useful
-    //     });
-    // }
+      // Save audio
+      // await db
+      //   .collection("audios")
+      //   .doc(audio.id) // Or format like `A1_audioId1`
+      //   .set({
+      //     ...audio,
+      //     lastReviewedDate: isoString,
+      //     nextReviewDate: isoString,
+      //     interval: 0,
+      //     easeFactor: 2.5,
+      //     repetitionCount: 0,
+      //     score: 0,
+      //     level, // optional but useful
+      //   });
+    }
 
     res.json({ validFlashcards, audios });
     //res.status(200).json({ flashcards, audios });
@@ -372,6 +376,130 @@ app.post("/generate-flashcards", async (req, res) => {
 function isLongPhrase(text) {
   return text.trim().split(/\s+/).length >= 4;
 }
+
+app.post("/create-flashcard-phrase", async (req, res) => {
+  const { phrases } = req.body;
+  // const prompt = get_prompt_json_phrase(phrase);
+  if (!phrases || !Array.isArray(phrases) || phrases.length === 0) {
+    return res.status(400).json({ error: "Missing words or level" });
+  }
+  try {
+    const flashcards = [];
+    const audios = [];
+    for (const phrase of phrases) {
+      // 1. Obtener flashcard desde OpenAI
+      const gptResponse = await client.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: get_prompt_json_phrase(phrase),
+          },
+        ],
+        max_tokens: 4096,
+        temperature: 1,
+        top_p: 1,
+        model: "gpt-4o",
+      });
+      console.log(gptResponse.choices[0].message.content);
+      //CREATE AN ID FOR THE FLASHCARD; IT'S GONNA BE USED TO MATCH WITH AN AUDIO
+      // console.log(`Creating flashcard for: ${word}`);
+
+      try {
+        let content = gptResponse.choices[0].message.content;
+        if (content.startsWith("```json")) {
+          content = content
+            .replace(/^```json\s*/, "")
+            .replace(/```$/, "")
+            .trim();
+        }
+        const flashcard = JSON.parse(content);
+        if (flashcard["frontAudioText"]) {
+          // const audioBuffer = await generateAudios(flashcard["frontAudioText"]);
+          // const audioUrl = await uploadAudioToCloudinary(
+          //   audioBuffer,
+          //   `${flashcard["mainWord"]}0A1`
+          // );
+          const id = crypto.randomUUID();
+          flashcards.push({
+            id,
+            ...flashcard,
+            mainWord: phrase,
+            //   frontAudioUrl: audioUrl,
+          });
+        }
+      } catch (e) {
+        console.error("Invalid JSON from GPT:", e);
+      }
+
+      // const flashcard = JSON.parse(gptResponse.choices[0].message.content);
+      // if (flashcard["mainWord"]) {
+      //   const id = crypto.randomUUID();
+      //   flashcards.push({
+      //     id,
+      //     ...flashcard,
+      //   });
+      // }
+    }
+
+    const flashcardsWithAudio = await Promise.all(
+      flashcards.map(async (flashcard) => {
+        try {
+          const audioBuffer = await generateAudios(flashcard["frontAudioText"]);
+          const audioUrl = await uploadAudioToCloudinary(
+            audioBuffer,
+            `${flashcard["mainWord"]}0phrase`
+          );
+
+          return {
+            ...flashcard,
+            frontAudioUrl: audioUrl,
+          };
+        } catch (err) {
+          console.error(
+            `Error generating audio for ${flashcard["mainWord"]}:`,
+            err
+          );
+          return null; // puedes filtrar estos después
+        }
+      })
+    );
+
+    // Elimina los que fallaron
+    const validFlashcards = flashcardsWithAudio.filter(Boolean);
+
+    for (const flashcard of validFlashcards) {
+      const now = new Date();
+      const isoString = now.toISOString();
+      // Save flashcard
+
+      const deltaFront = ensureFinalNewline(flashcard.deltaFront);
+      const deltaBack = ensureFinalNewline(flashcard.deltaBack);
+      flashcard["deltaFront"] = deltaFront;
+      flashcard["deltaBack"] = deltaBack;
+
+      await db
+        .collection("flashcards")
+        .doc(flashcard.id) // You can generate IDs like `A1_flashcardId1` if you want
+        .set({
+          ...flashcard,
+          lastReviewedDate: isoString,
+          nextReviewDate: isoString,
+          interval: 0,
+          easeFactor: 2.5,
+          repetitionCount: 0,
+          lapses: 0,
+          score: 0,
+          level: "PHRASES", // Keep this so you can filter/query flashcards by level later
+        });
+    }
+
+    res.json({ validFlashcards, audios });
+    //res.status(200).json({ flashcards, audios });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error creating flashcards" });
+  }
+});
 
 app.post("/create-flashcard-word-phrase", async (req, res) => {
   //PARAMETERS: word, level, caracteritics
@@ -683,6 +811,46 @@ async function fetchCaptions(videoId) {
     }
   }
 }
+
+function parseVTTtoTranscript(vttText) {
+  const lines = vttText.split("\n");
+  const transcript = [];
+  let current = null;
+
+  for (let line of lines) {
+    line = line.trim();
+
+    // Detectamos línea de tiempo "00:00:00.100 --> 00:00:03.062"
+    if (line.includes("-->")) {
+      const [startTime] = line.split("-->");
+      const startSeconds = timeToSeconds(startTime.trim());
+      current = { start: startSeconds, text: "" };
+    } else if (line && current) {
+       const cleanText = he.decode(line);
+      // Acumulamos texto del subtítulo
+      current.text += (current.text ? " " : "") + cleanText;
+    } else if (!line && current) {
+      // Línea vacía: cerramos el bloque
+      transcript.push(current);
+      current = null;
+    }
+  }
+
+  return transcript;
+}
+
+// Convierte "hh:mm:ss.mmm" -> segundos con decimales
+function timeToSeconds(timeStr) {
+  const [h, m, s] = timeStr.split(":");
+  const [sec, ms = 0] = s.split(".");
+  return (
+    parseInt(h, 10) * 3600 +
+    parseInt(m, 10) * 60 +
+    parseInt(sec, 10) +
+    (ms ? parseFloat("0." + ms) : 0)
+  );
+}
+
 //ID hgYhws0AHcg
 app.get("/get-transcript/:videoId", async (req, res) => {
   try {
@@ -690,13 +858,56 @@ app.get("/get-transcript/:videoId", async (req, res) => {
 
     // const transcript = await YoutubeTranscript.fetchTranscript(videoId);
 
-    const result = await fetchCaptions(videoId);
-    const transcriptMap = result.map(({ text, start }) => ({ text, start }));
-    const justText = transcriptMap.map(({ text }) => text).join(" "); // Remove the second parameter
-    console.log(justText);
-    // console.log(result);
+    // const result = await fetchCaptions(videoId);
+    // const transcriptMap = result.map(({ text, start }) => ({ text, start }));
+    // const justText = transcriptMap.map(({ text }) => text).join(" "); // Remove the second parameter
+    // console.log(justText);
 
-    res.json(transcriptMap);
+    // console.log(result);
+    const output = await youtubeDl(
+      `https://www.youtube.com/watch?v=${videoId}`,
+      {
+        dumpSingleJson: true,
+        noCheckCertificates: true,
+        noWarnings: true,
+        writeAutoSub: true, // auto-generated subtitles
+        writeSub: true, // manual subtitles (if available)
+        subLangs: "en.*", // pick languages (en.*, es, all, etc.)
+        skipDownload: true, // don’t download video, just metadata + subsccccccccccccccccccccccccccccccccccc
+        preferFreeFormats: true,
+        addHeader: ["referer:youtube.com", "user-agent:googlebot"],
+      }
+    );
+    // console.log(output);
+    // console.log(output.subtitles);
+    // const firstValue = Object.values(output.subtitles).find((sub) =>
+    //   sub.constain("en")
+    // );
+    // console.log(firstValue); // 1
+    const firstEnKey = Object.keys(output.subtitles).find((key) =>
+      key.startsWith("en")
+    );
+    let v0 = "hsh";
+
+    console.log(firstEnKey); // e.g. "en" or "en-US"
+
+    const enSubtitles = output.subtitles[firstEnKey];
+    // console.log(enSubtitles);
+
+    const extVTT = enSubtitles.find(
+      (sub) => sub.ext === "vtt" && sub.name?.includes("English")
+    );
+
+    console.log(extVTT);
+
+    const url = extVTT.url;
+    const result = await fetch(url);
+
+    const trasncriptText = await result.text();
+    //console.log(trasncriptText);
+    const transcriptJson = parseVTTtoTranscript(trasncriptText);
+
+    res.json(transcriptJson);
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: error.message });

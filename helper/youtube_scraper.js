@@ -43,7 +43,7 @@ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
 const fetchData = async function fetchData(url) {
   const randomUserAgent =
     userAgents[Math.floor(Math.random() * userAgents.length)];
-  console.log(randomUserAgent);
+  //  console.log(randomUserAgent);
   const { data } = await axios.get(url);
   return data;
 };
@@ -93,7 +93,7 @@ export async function getSubtitles({ videoID, lang = "en" }) {
   // * ensure we have found the correct subtitle lang
   if (!subtitle || (subtitle && !subtitle.baseUrl))
     throw new Error(`Could not find ${lang} captions for ${videoID}`);
-
+  console.log(subtitle.baseUrl + "URL");
   const transcript = await fetchData(subtitle.baseUrl);
   const lines = transcript
     .replace('<?xml version="1.0" encoding="utf-8" ?><transcript>', "")

@@ -254,95 +254,116 @@ https://m.media-amazon.com/images/I/81yF0ycIo6L._SL1500_.jpg
 */
 
 const exampleBookSummary = {
-  title: "Atomic Habits",
-  author: "James Clear",
-  image: "https://m.media-amazon.com/images/I/81yF0ycIo6L._SL1500_.jpg",
+  title: "Can’t Hurt Me",
+  author: "David Goggins",
   introduction:
-    "Atomic Habits is a book about how small habits can lead to big changes. James Clear explains how to build good habits and break bad ones. The book gives simple steps that anyone can follow. It shows how small actions every day can help you reach your goals over time.",
+    "Can’t Hurt Me is a powerful book about mental strength, discipline, and overcoming pain. David Goggins shares his life story—from a difficult childhood to becoming a Navy SEAL and ultra-athlete. The book teaches that you can become stronger by facing your fears, pushing past your limits, and taking control of your mind. It’s not just a story—it’s a message that you are in control of your life.",
+  image:
+    "https://m.media-amazon.com/images/I/81YJFNc54lL._UF894,1000_QL80_.jpg",
+
   sections: [
     {
-      title: "Why Small Habits Matter",
+      title: "A Very Hard Childhood",
       paragraphs: [
-        "Many people think big changes need big actions. But this book shows that small habits, done daily, can make a huge difference. A 1% improvement every day adds up to a lot over time.",
-        "James Clear calls these small changes 'atomic habits'. They are tiny, but they have great power when you repeat them. They are like building blocks for a better life.",
-        "If you do something good every day, it becomes part of who you are. These small habits help you grow slowly and steadily. You may not see fast results, but they are real and strong.",
+        "David Goggins had a difficult life when he was young.",
+        "His father was violent and made him work long hours. He was often scared and tired.",
+        "David also experienced racism and bullying at school.",
+        "He felt small, weak, and different. He didn’t believe in himself.",
+        "But one day, he decided: 'I don’t want to live like this anymore.' That decision changed everything.",
       ],
     },
     {
-      title: "The Power of Identity",
+      title: "Your Past Does Not Define You",
       paragraphs: [
-        "Changing your habits is not just about what you do. It’s also about who you want to become. Instead of saying 'I want to run,' say 'I am a runner.'",
-        "When you see yourself in a new way, your habits follow. Your actions start to match your identity. If you believe you are healthy, you will make healthy choices.",
-        "Start with the person you want to be. Then ask, 'What does that person do every day?' This helps you build strong habits that last.",
+        "David teaches that your past doesn’t control your future.",
+        "Even if life is hard, even if people treat you badly — you can change.",
+        "It’s not easy. You have to fight. But the pain can help you grow.",
+        "David used his pain to become stronger, not weaker.",
       ],
     },
     {
-      title: "How Habits Work",
+      title: "Your Mind Is a Muscle",
       paragraphs: [
-        "Every habit has four parts: cue, craving, response, and reward. The cue is what starts the habit. The craving is your desire. The response is your action. The reward is the result you get.",
-        "For example, your phone buzzes (cue), you want to see the message (craving), you check your phone (response), and you feel happy (reward).",
-        "Understanding this cycle helps you create good habits. If you know what causes your habits, you can change them more easily.",
+        "David says that your mind is like a muscle — you can train it.",
+        "Most people stop when things get hard. But David says, 'You still have 60% more inside.'",
+        "He calls this the 40% Rule: When you think you’re done, you’ve only used 40% of your true power.",
+        "To grow, you must do hard things, even when you want to quit.",
       ],
     },
     {
-      title: "Make Habits Obvious",
+      title: "Callusing the Mind",
       paragraphs: [
-        "To build good habits, you need clear cues. Make your habits easy to see. For example, if you want to drink more water, put a bottle on your desk.",
-        "Use something called habit stacking. This means you add a new habit to something you already do. For example, 'After I brush my teeth, I will read one page of a book.'",
-        "The clearer and easier the habit is, the more likely you will do it. You won’t forget it if it’s part of your daily life.",
+        "When you lift weights, your hands get stronger. They get calluses.",
+        "David says the same can happen with your mind.",
+        "When you do painful things again and again — like running long distances, training in the cold, or facing your fears — you get mentally tougher.",
+        "This is called 'callusing the mind.' Pain teaches you. Discomfort becomes your teacher, not your enemy.",
       ],
     },
     {
-      title: "Make Habits Attractive",
+      title: "The Accountability Mirror",
       paragraphs: [
-        "We like doing things that feel good. To build better habits, try to make them fun or rewarding. This makes your brain want to do them again.",
-        "One way to do this is to pair a habit with something you enjoy. For example, listen to music only when you exercise. This makes you look forward to it.",
-        "When habits feel good, you are more likely to stick with them. Over time, they become a natural part of your life.",
+        "One of David’s best tools was something very simple: a mirror.",
+        "Every night, he stood in front of the mirror and told himself the truth.",
+        "If he was lazy, he said it. If he was weak, he said it.",
+        "But he also wrote goals on small notes and stuck them to the mirror.",
+        "He called this the 'Accountability Mirror.' It helped him stay honest — and focused.",
+        "You can do the same: Look in the mirror. Be honest. Set goals. Chase them.",
       ],
     },
     {
-      title: "Make Habits Easy",
+      title: "Taking Souls",
       paragraphs: [
-        "People often stop new habits because they feel hard. Make your habits simple and small. Start with something you can do in two minutes.",
-        "This is called the 'Two-Minute Rule'. For example, instead of saying 'I will read for 30 minutes,' say 'I will read one page.' Starting small makes it easy to begin.",
-        "When something feels easy, your brain doesn’t fight it. Once you start, it’s easier to keep going. Starting is the most important step.",
+        "This is one of the most powerful ideas in the book.",
+        "'Taking souls' means doing something so amazing that others are shocked.",
+        "For example, if someone thinks you will quit — you don’t. You go even harder. You show them how strong you are.",
+        "David used this to earn respect from people who didn’t believe in him.",
+        "He didn’t speak much — he let his actions speak.",
+        "This teaches us: Work in silence. Shock them with results.",
       ],
     },
     {
-      title: "Make Habits Satisfying",
+      title: "The Cookie Jar",
       paragraphs: [
-        "If a habit feels good, your brain remembers it. Give yourself a small reward after doing a habit. This helps your brain learn it’s a good thing.",
-        "For example, after finishing a workout, check it off on a calendar. Seeing your progress feels nice and makes you want to continue.",
-        "Making habits satisfying helps you stick to them. The more you enjoy the habit, the easier it is to repeat it.",
+        "When things got tough, David used a trick: He remembered all the times he had been strong before.",
+        "He called this the 'Cookie Jar.'",
+        "Each 'cookie' was a memory of victory — like passing a test, finishing a race, or pushing through pain.",
+        "When he felt like quitting, he 'took a cookie' and remembered: 'I’ve done hard things before. I can do it again.'",
+        "You can make your own cookie jar in your mind. Fill it with victories — big or small. Use them when life is hard.",
       ],
     },
     {
-      title: "Break Bad Habits",
+      title: "Discipline Over Motivation",
       paragraphs: [
-        "To stop a bad habit, do the opposite of building a good one. Make it invisible, unattractive, hard, and not satisfying.",
-        "For example, if you want to stop eating junk food, don’t keep it in your house. If you can’t see it, you won’t eat it.",
-        "Also, think about the bad side of the habit. Make it harder to do, like locking your phone away during work. These steps help stop bad behaviors.",
+        "David says: 'Motivation is weak. Discipline is strong.'",
+        "Motivation comes and goes. Some days you feel excited, some days you don’t.",
+        "But discipline is different. It means doing the work, even when you don’t feel like it.",
+        "David didn’t wait to feel ready. He just got up and worked.",
+        "He woke up early. He trained in pain. He did what others refused to do.",
+        "This is how real change happens — through discipline, not motivation.",
       ],
     },
     {
-      title: "The Importance of Environment",
+      title: "Pain Is the Path",
       paragraphs: [
-        "Your environment affects your habits. If your space is full of distractions, it’s hard to focus. If it’s clean and ready, good habits are easier.",
-        "For example, if you want to cook healthy meals, keep your kitchen tidy and have healthy food ready. This makes it easier to start.",
-        "You can also create different spaces for different actions. One chair for reading, one table for working. This helps your brain build clear habits.",
+        "Most people run away from pain. But David says: Run into it.",
+        "Why? Because pain is the way forward. It teaches you what you’re made of.",
+        "It helps you grow. It makes you strong.",
+        "David became a Navy SEAL, an ultra-runner, and a top athlete — not because he was special — but because he accepted pain as part of the journey.",
+        "You can do hard things too. But first, you must choose the hard path.",
       ],
     },
     {
-      title: "Keep Going, Even If It's Slow",
+      title: "Final Message: You Are in Control",
       paragraphs: [
-        "Change takes time. You may not see results right away, but that’s okay. Keep going, even if progress feels slow.",
-        "Habits grow like a seed. At first, you don’t see anything. But with time and care, they grow strong.",
-        "Stay patient. Trust the process. Every small step is a win. Over time, you will see big changes in your life.",
+        "“Can’t Hurt Me” is not just about David’s life. It’s a message for you.",
+        "It says: You can choose to grow. You can become stronger. You can change your story.",
+        "Your past doesn’t control you. Fear doesn’t control you. You are in control.",
+        "You don’t need to be perfect. You just need to try — every day.",
+        "With honesty, discipline, and courage, nothing can stop you.",
+        "Not even pain. Not even fear. Because once you become mentally strong... Nothing can hurt you.",
       ],
     },
   ],
-  conclusion:
-    "Atomic Habits teaches us that small steps lead to big success. You don’t need to be perfect — just a little better each day. Good habits can shape your future. Stay patient, keep practicing, and believe in your power to change.",
 };
 
 export { transcribeUrl, createAudioBooks };

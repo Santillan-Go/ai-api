@@ -15,10 +15,10 @@ const serviceAccount = JSON.parse(
   process.env.FIREBASE_SERVICE_ACCOUNT_KEY || "{}"
 );
 
-console.log(
-  "FIREBASE_SERVICE_ACCOUNT:",
-  process.env.FIREBASE_SERVICE_ACCOUNT_KEY
-);
+// console.log(
+//   "FIREBASE_SERVICE_ACCOUNT:",
+//   process.env.FIREBASE_SERVICE_ACCOUNT_KEY
+// );
 
 const app = initializeApp({
   credential: cert(serviceAccount),

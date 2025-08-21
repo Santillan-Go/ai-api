@@ -266,6 +266,55 @@ Transcript: ${transcript}
 
   // `;
 };
+
+export const get_prompt_json_phrase = (phrase) => {
+  return `
+  Eres un generador experto de flashcards educativas para hispanohablantes que están aprendiendo inglés.
+Tu tarea es crear una flashcard con la frase ${phrase} en formato JSON, con las siguientes propiedades:
+{
+  
+  "deltaFront": [formato Delta que muestre la frase y un ejemplo simple(basate en la frase ${phrase}) en inglés y un emoji relacionado. Cada insert debe terminar con un salto de línea real (usa \n al final de cada string, no como texto plano)],
+  "deltaBack": [formato Delta que muestre la traducción al español, el ejemplo traducido ]
+  "frontAudioText": Incluye ${phrase} y el ejemplo clave en inglés que usaste en deltaFront, ejemplo: Take. Take your time.
+}
+
+Usa solo JSON válido, sin explicaciones. No envuelvas los valores en markdown. No uses saltos de línea reales, usa "\\n". No uses comillas escapadas ni estructuras anidadas mal cerradas. Asegúrate que tanto deltaFront como deltaBack sean arrays de objetos Delta válidos.
+
+ejemplo de las propiedades del delta [
+{
+    "insert": "Ashamed\n",
+    "attributes": {
+      "bold": true,
+      "italic": true,
+      "color": "#1E88E5",
+      "align": "center",
+      "header": 3
+    }
+  },
+  {
+    "insert": "He felt ashamed after breaking the vase. 😔\n",
+    "attributes": {
+      "align": "center"
+    }
+  }
+]
+
+
+
+
+**deltaFront**:  
+- La palabra con color  centrada, en negritas, itálica ,  header:3.
+- Un ejemplo simple (ej: "I eat an apple.", hazlo fácil de entender incluso para un nivel A2) en inglés ) centrado.
+- Un emoji relacionado.
+
+
+**deltaBack**:  
+- Traducción al español (ej: "Comer"), con  color, centrado, en negrita e itálica y header:3.
+- Ejemplo traducido (ej: "Yo como una manzana."), centrado.
+
+
+  `;
+};
 /*
 new
 `Responde como un experto educativo. responde con un objeto JSON válido, sin envolverlo en markdown, sin usar comillas escapadas innecesarias ni \\n que no correspondan. Asegúrate que deltaBack y deltaFront usen solo el formato JSON Delta. Crea el contenido basado en esta palabra: "${word}", y nivel: "${level}". El objeto debe tener la siguiente estructura:
