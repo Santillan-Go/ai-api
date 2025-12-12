@@ -7,8 +7,8 @@ dotenv.config();
 export const pronunciationAssessmentWithFile = ({audioFile, reference_text}) => {
     return new Promise((resolve, reject) => {
         const timeoutId = setTimeout(() => {
-            reject(new Error("Pronunciation assessment timed out after 8 seconds"));
-        }, 8000);
+            reject(new Error("Pronunciation assessment timed out after 20 seconds"));
+        }, 20000);
         
         try {
             console.log("🎙️  Starting fast pronunciation assessment...");
