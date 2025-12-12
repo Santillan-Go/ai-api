@@ -31,6 +31,7 @@ import { generateAudios } from "./services/generate_audio.js";
 // import { getSubtitles } from "youtube-captions-scraper";
 import youtubeDl from "youtube-dl-exec";
 import { pronunciationAssessmentContinuousWithFile } from "./services/speech_azure.js";
+import { title } from "process";
 dotenv.config();
 
 const port = process.env.PORT || 3000;
@@ -232,11 +233,12 @@ app.post("/speech-audio", upload.single('audioFile'), async (req, res) => {
   
   try {
     if (!req.file) {
+   
       return res.status(400).json({ error: "No audio file uploaded" });
     }
     
     const { reference_text } = req.body;
-    
+       console.log({ reference_text });
     if (!reference_text) {
       return res.status(400).json({ error: "reference_text is required" });
     }
@@ -250,7 +252,7 @@ app.post("/speech-audio", upload.single('audioFile'), async (req, res) => {
                   req.file.originalname.toLowerCase().endsWith('.wav');
     
     let audioFileToProcess = req.file.path;
-    
+    console.log({audio:req.files, title:req.body.title, mimetype:req.file.mimetype});
     if (!isWav) {
       // Convert to WAV
       console.log("🔄 Converting audio to WAV format...");
@@ -297,7 +299,7 @@ app.post("/speech-audio", upload.single('audioFile'), async (req, res) => {
       });
     }
     
-    res.status(500).json({ error: error.message });
+    res.status(500).json();
   }
 });
 
