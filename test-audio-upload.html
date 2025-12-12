@@ -90,7 +90,7 @@
             resultDiv.innerHTML = '<p>⏳ Processing... Please wait...</p>';
             
             try {
-                const response = await fetch('http://localhost:3000/speech-audio', {
+                const response = await fetch('/speech-audio', {
                     method: 'POST',
                     body: formData
                 });
