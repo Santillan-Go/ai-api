@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pronunciation Assessment Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        textarea {
+            min-height: 100px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            display: none;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎙️ Pronunciation Assessment Test</h1>
+    
+    <form id="uploadForm">
+        <div class="form-group">
+            <label for="audioFile">Audio File (WAV format):</label>
+            <input type="file" id="audioFile" name="audioFile" accept="audio/*" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="reference_text">Reference Text:</label>
+            <textarea id="reference_text" name="reference_text" placeholder="Enter the text that should be spoken in the audio..." required>Today was a beautiful day.</textarea>
+        </div>
+        
+        <button type="submit">Submit for Assessment</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const audioFile = document.getElementById('audioFile').files[0];
+            const reference_text = document.getElementById('reference_text').value;
+            
+            formData.append('audioFile', audioFile);
+            formData.append('reference_text', reference_text);
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = '';
+            resultDiv.innerHTML = '<p>⏳ Processing... Please wait...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/speech-audio', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    console.log('Assessment Result:', data);
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = `
+                        <h3>✅ Assessment Results:</h3>
+                        <p><strong>Pronunciation Score:</strong> ${data.result.scores.pronScore}</p>
+                        <p><strong>Accuracy Score:</strong> ${data.result.scores.accuracyScore}</p>
+                        <p><strong>Fluency Score:</strong> ${data.result.scores.fluencyScore.toFixed(2)}</p>
+                        <p><strong>Completeness Score:</strong> ${data.result.scores.compScore}</p>
+                        <p><strong>Prosody Score:</strong> ${data.result.scores.prosodyScore}</p>
+                        <p><strong>Recognized Text:</strong> ${data.result.recognizedText}</p>
+                    `;
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = `<p>❌ Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `<p>❌ Error: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>

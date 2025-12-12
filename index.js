@@ -3,6 +3,11 @@ import express from "express";
 import cors from "cors";
 import he from "he";
 import dotenv from "dotenv";
+import fs from "fs";
+import multer from "multer";
+import path from "path";
+import ffmpeg from "fluent-ffmpeg";
+import ffmpegStatic from "ffmpeg-static";
 //import TranscriptAPI from 'youtube-transcript-api';
 // Import the functions you need from the SDKs you need
 import { v2 as cloudinary } from "cloudinary";
@@ -25,7 +30,7 @@ import { createAudioBooks, transcribeUrl } from "./books/create_audio_books.js";
 import { generateAudios } from "./services/generate_audio.js";
 // import { getSubtitles } from "youtube-captions-scraper";
 import youtubeDl from "youtube-dl-exec";
-
+import { pronunciationAssessmentContinuousWithFile } from "./services/speech_azure.js";
 dotenv.config();
 
 const port = process.env.PORT || 3000;
@@ -60,7 +65,7 @@ const client = new AzureOpenAI({
 });
 
 app.get("/", async (req, res) => {
-  res.json({ message: "Hello" });
+  res.sendFile(path.join(process.cwd(), 'test-audio-upload.html'));
 });
 
 app.get("/responses", async (req, res) => {
@@ -168,6 +173,132 @@ function ensureFinalNewline(deltaArray) {
 
   return deltaArray;
 }
+
+// Set ffmpeg path to the static binary
+ffmpeg.setFfmpegPath(ffmpegStatic);
+
+// Convert audio file to WAV format using FFmpeg
+function convertToWav(inputPath, outputPath) {
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .toFormat('wav')
+      .audioFrequency(16000)  // 16kHz sample rate for speech recognition
+      .audioChannels(1)        // Mono channel
+      .audioCodec('pcm_s16le') // 16-bit PCM encoding
+      .on('end', () => {
+        console.log('✅ Audio conversion completed');
+        resolve();
+      })
+      .on('error', (err) => {
+        console.error('❌ FFmpeg conversion error:', err);
+        reject(err);
+      })
+      .save(outputPath);
+  });
+}
+
+// Configure multer for audio file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/') // Make sure this directory exists
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, 'audio-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+  fileFilter: function (req, file, cb) {
+    // Accept common audio formats - we'll convert to WAV
+    const allowedMimes = ['audio/wav', 'audio/x-wav', 'audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/x-m4a', 'audio/webm', 'audio/ogg'];
+    if (allowedMimes.includes(file.mimetype) || file.mimetype.startsWith('audio/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only audio files are allowed!'), false);
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  }
+});
+
+// Initialize FFmpeg instance
+app.post("/speech-audio", upload.single('audioFile'), async (req, res) => {
+  let wavFilePath = null;
+  
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No audio file uploaded" });
+    }
+    
+    const { reference_text } = req.body;
+    
+    if (!reference_text) {
+      return res.status(400).json({ error: "reference_text is required" });
+    }
+
+    console.log("📁 Received audio file:", req.file.filename);
+    console.log("📝 Reference text:", reference_text);
+
+    // Check if file is already WAV
+    const isWav = req.file.mimetype === 'audio/wav' || 
+                  req.file.mimetype === 'audio/x-wav' || 
+                  req.file.originalname.toLowerCase().endsWith('.wav');
+    
+    let audioFileToProcess = req.file.path;
+    
+    if (!isWav) {
+      // Convert to WAV
+      console.log("🔄 Converting audio to WAV format...");
+      wavFilePath = req.file.path.replace(path.extname(req.file.path), '.wav');
+      await convertToWav(req.file.path, wavFilePath);
+      audioFileToProcess = wavFilePath;
+      console.log("✅ Conversion complete");
+    }
+
+    // Call the pronunciation assessment function
+    const result = await pronunciationAssessmentContinuousWithFile({
+      audioFile: audioFileToProcess,
+      reference_text: reference_text
+    });
+
+    // Clean up: delete the uploaded file(s) after processing
+    fs.unlink(req.file.path, (err) => {
+      if (err) console.error("Error deleting original file:", err);
+    });
+    
+    if (wavFilePath && wavFilePath !== req.file.path) {
+      fs.unlink(wavFilePath, (err) => {
+        if (err) console.error("Error deleting WAV file:", err);
+      });
+    }
+
+    res.json({ 
+      message: "Pronunciation assessment completed",
+      result: result 
+    });
+  } catch (error) {
+    console.error("❌ Error:", error);
+    
+    // Clean up files if there was an error
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error("Error deleting temp file:", err);
+      });
+    }
+    
+    if (wavFilePath) {
+      fs.unlink(wavFilePath, (err) => {
+        if (err) console.error("Error deleting WAV file:", err);
+      });
+    }
+    
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 // Ruta para generar flashcards
 app.post("/generate-flashcards", async (req, res) => {
