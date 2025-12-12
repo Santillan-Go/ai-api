@@ -30,8 +30,8 @@ import { createAudioBooks, transcribeUrl } from "./books/create_audio_books.js";
 import { generateAudios } from "./services/generate_audio.js";
 // import { getSubtitles } from "youtube-captions-scraper";
 import youtubeDl from "youtube-dl-exec";
-import { pronunciationAssessmentContinuousWithFile } from "./services/speech_azure.js";
-//import { pronunciationAssessmentWithFile } from "./services/speech_azure_fast.js";
+//import { pronunciationAssessmentContinuousWithFile } from "./services/speech_azure.js";
+import { pronunciationAssessmentWithFile } from "./services/speech_azure_fast.js";
 //import { title } from "process";
 dotenv.config();
 
@@ -264,7 +264,7 @@ app.post("/speech-audio", upload.single('audioFile'), async (req, res) => {
     }
 
     // Call the fast pronunciation assessment function (single-shot)
-    const result = await pronunciationAssessmentContinuousWithFile({
+    const result = await pronunciationAssessmentWithFile({
       audioFile: audioFileToProcess,
       reference_text: reference_text
     });
