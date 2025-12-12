@@ -254,20 +254,26 @@ app.post("/speech-audio", upload.single('audioFile'), async (req, res) => {
     
     let audioFileToProcess = req.file.path;
     console.log({audio:req.files, title:req.body.title, mimetype:req.file.mimetype});
+    
+    const conversionStartTime = Date.now();
     if (!isWav) {
       // Convert to WAV
       console.log("🔄 Converting audio to WAV format...");
       wavFilePath = req.file.path.replace(path.extname(req.file.path), '.wav');
       await convertToWav(req.file.path, wavFilePath);
       audioFileToProcess = wavFilePath;
-      console.log("✅ Conversion complete");
+      const conversionTime = ((Date.now() - conversionStartTime) / 1000).toFixed(2);
+      console.log(`✅ Conversion complete in ${conversionTime}s`);
     }
 
+    const assessmentStartTime = Date.now();
     // Call the fast pronunciation assessment function (single-shot)
     const result = await pronunciationAssessmentWithFile({
       audioFile: audioFileToProcess,
       reference_text: reference_text
     });
+    const assessmentTime = ((Date.now() - assessmentStartTime) / 1000).toFixed(2);
+    console.log(`📊 Assessment completed in ${assessmentTime}s`);
 
     // Clean up: delete the uploaded file(s) after processing
     fs.unlink(req.file.path, (err) => {

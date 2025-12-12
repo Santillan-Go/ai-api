@@ -65,11 +65,28 @@ export const pronunciationAssessmentWithFile = ({audioFile, reference_text}) => 
                             prosody: pronunciationResult.prosodyScore
                         });
                         
-                        const words = jsonResult.NBest[0].Words.map(word => ({
-                            word: word.Word,
-                            accuracyScore: word.PronunciationAssessment.AccuracyScore,
-                            errorType: word.PronunciationAssessment.ErrorType
-                        }));
+                        const words = jsonResult.NBest[0].Words.map(word => {
+                            return {
+                                word: word.Word,
+                                accuracyScore: word.PronunciationAssessment.AccuracyScore,
+                                errorType: word.PronunciationAssessment.ErrorType,
+                                // Phonemes are at word level, not inside PronunciationAssessment
+                                phonemes: word.Phonemes ? word.Phonemes.map(phoneme => ({
+                                    phoneme: phoneme.Phoneme,
+                                    accuracyScore: phoneme.PronunciationAssessment?.AccuracyScore || 0,
+                                    offset: phoneme.Offset,
+                                    duration: phoneme.Duration
+                                })) : [],
+                                // Also include syllables for more detail
+                                syllables: word.Syllables ? word.Syllables.map(syllable => ({
+                                    syllable: syllable.Syllable,
+                                    grapheme: syllable.Grapheme, // The written letters
+                                    accuracyScore: syllable.PronunciationAssessment?.AccuracyScore || 0
+                                })) : []
+                            };
+                        });
+                        
+                        console.log("📝 Detailed word analysis:", JSON.stringify(words, null, 2));
                         
                         resolve({
                             scores: {
