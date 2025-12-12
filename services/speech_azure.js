@@ -8,15 +8,22 @@ dotenv.config();
 
 export const pronunciationAssessmentContinuousWithFile = ({audioFile, reference_text}) => {
     return new Promise((resolve, reject) => {
+        // Set a safety timeout (8 seconds to stay within Vercel's 10s limit)
+        const timeoutId = setTimeout(() => {
+            reject(new Error("Pronunciation assessment timed out after 8 seconds"));
+        }, 8000);
+        
         try {
             console.log("🎙️  Starting pronunciation assessment...");
             
             if (!audioFile) {
+                clearTimeout(timeoutId);
                 reject(new Error("audioFile parameter is required"));
                 return;
             }
             
             if (!fs.existsSync(audioFile)) {
+                clearTimeout(timeoutId);
                 reject(new Error(`Audio file "${audioFile}" not found!`));
                 return;
             }
@@ -25,11 +32,13 @@ export const pronunciationAssessmentContinuousWithFile = ({audioFile, reference_
             var audioConfig = sdk.AudioConfig.fromWavFileInput(fs.readFileSync(audioFile));
             
             if (!process.env.SUBSCRIPTION_KEY) {
+                clearTimeout(timeoutId);
                 reject(new Error("SUBSCRIPTION_KEY not found in .env file!"));
                 return;
             }
             
             if(!reference_text) {
+                clearTimeout(timeoutId);
                 reject(new Error("reference_text is required for pronunciation assessment!"));
                 return;
             }
@@ -320,6 +329,7 @@ export const pronunciationAssessmentContinuousWithFile = ({audioFile, reference_
     // Signals the end of a session with the speech service.
     reco.sessionStopped = function (s, e) {
         console.log("🏁 Session stopped");
+        clearTimeout(timeoutId); // Clear the timeout
         reco.stopContinuousRecognitionAsync();
         reco.close();
         
@@ -333,6 +343,7 @@ export const pronunciationAssessmentContinuousWithFile = ({audioFile, reference_
         } catch (error) {
             console.error("❌ Fatal error in pronunciation assessment:", error.message);
             console.error(error.stack);
+            clearTimeout(timeoutId);
             reject(error);
         }
     });
