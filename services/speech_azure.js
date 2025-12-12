@@ -10,8 +10,8 @@ export const pronunciationAssessmentContinuousWithFile = ({audioFile, reference_
     return new Promise((resolve, reject) => {
         // Set a safety timeout (8 seconds to stay within Vercel's 10s limit)
         const timeoutId = setTimeout(() => {
-            reject(new Error("Pronunciation assessment timed out after 8 seconds"));
-        }, 8000);
+            reject(new Error("Pronunciation assessment timed out after 20 seconds"));
+        }, 20000);
         
         try {
             console.log("🎙️  Starting pronunciation assessment...");
