@@ -26,7 +26,7 @@ export function getIPA(text) {
   
   // If single word, return just the IPA string or null
   if (words.length === 1) {
-    return ipaDict[words[0].toLowerCase()] || null;
+    return [`${ipaDict[words[0].toLowerCase()]}`] || null;
   }
   
   // If multiple words, return an array of IPAs
