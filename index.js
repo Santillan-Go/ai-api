@@ -15,7 +15,7 @@ import { v2 as cloudinary } from "cloudinary";
 //import { getSubtitles } from "youtube-captions-scraper";
 import { getSubtitles } from "./helper/youtube_scraper.js";
 import { uploadAudioToCloudinary } from "./services/cloudinary.js";
-
+import {getIPA } from "./services/ipa_pronunciation.js";
 import { db } from "./services/firebase.js"; // adjust path if needed
 import {
   create_flashcard_word,
@@ -68,6 +68,16 @@ const client = new AzureOpenAI({
 
 app.get("/", async (req, res) => {
   res.sendFile(path.join(process.cwd(), 'test-audio-upload.html'));
+});
+
+app.post("/get-ipa", async (req, res) => {
+  const { word } = req.body;
+  try {
+    const ipa = getIPA(word);
+    res.json({ ipa });
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching IPA" });
+  }
 });
 
 app.get("/responses", async (req, res) => {
