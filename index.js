@@ -1,19 +1,16 @@
 import { AzureOpenAI } from "openai";
 import express from "express";
 import cors from "cors";
-import he from "he";
+//import he from "he";
 import dotenv from "dotenv";
 import fs from "fs";
 import multer from "multer";
 import path from "path";
-import ffmpeg from "fluent-ffmpeg";
-import ffmpegStatic from "ffmpeg-static";
-import { YoutubeTranscript } from 'youtube-transcript';
 // Import the functions you need from the SDKs you need
 import { v2 as cloudinary } from "cloudinary";
 
 //import { getSubtitles } from "youtube-captions-scraper";
-import { getSubtitles } from "./helper/youtube_scraper.js";
+//import { getSubtitles } from "./helper/youtube_scraper.js";
 import { uploadAudioToCloudinary } from "./services/cloudinary.js";
 import {getIPA } from "./services/ipa_pronunciation.js";
 import { db } from "./services/firebase.js"; // adjust path if needed
@@ -29,10 +26,22 @@ import {
 import { createAudioBooks, transcribeUrl } from "./books/create_audio_books.js";
 import { generateAudios } from "./services/generate_audio.js";
 // import { getSubtitles } from "youtube-captions-scraper";
-import youtubeDl from "youtube-dl-exec";
+//import youtubeDl from "youtube-dl-exec";
 //import { pronunciationAssessmentContinuousWithFile } from "./services/speech_azure.js";
 import { pronunciationAssessmentWithFile } from "./services/speech_azure_fast.js";
 import Stripe from "stripe";
+
+// FFmpeg imports - optional for Vercel (won't work in serverless)
+let ffmpeg, ffmpegStatic;
+try {
+  ffmpeg = (await import("fluent-ffmpeg")).default;
+  ffmpegStatic = (await import("ffmpeg-static")).default;
+  if (ffmpegStatic) {
+    ffmpeg.setFfmpegPath(ffmpegStatic);
+  }
+} catch (error) {
+  console.log("FFmpeg not available in serverless environment");
+}
 
 // Configure youtube-dl-exec to use Python 3.12
 //process.env.PYTHON_PATH = '/opt/homebrew/bin/python3.12';
@@ -1238,11 +1247,8 @@ app.post("/create-test-user", async (req, res) => {
   }
 });
 
-// Only start server if not in Vercel environment
-if (process.env.VERCEL !== '1') {
-  app.listen(port, "0.0.0.0", () => {
-    console.log(`Server running on  http://localhost:${port}`);
-  });
-}
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server running on  http://localhost:${port}`);
+});
 
 export default app;
