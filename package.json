@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm install"
+    "build": "npm install",
+    "postinstall": "node scripts/fix-ytdlp.js"
   },
   "keywords": [],
   "author": "",
@@ -34,10 +35,11 @@
     "microsoft-cognitiveservices-speech-sdk": "^1.47.0",
     "multer": "^2.0.2",
     "openai": "^4.93.0",
+    "stripe": "^20.1.0",
     "striptags": "^3.2.0",
     "xml2js": "^0.6.2",
     "youtube-captions-scraper": "^2.0.3",
-    "youtube-dl-exec": "^3.0.24",
+    "youtube-dl-exec": "^3.0.27",
     "youtube-transcript": "^1.2.1",
     "youtube-transcript-api": "^1.1.2"
   },

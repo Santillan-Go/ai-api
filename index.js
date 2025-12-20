@@ -8,7 +8,7 @@ import multer from "multer";
 import path from "path";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegStatic from "ffmpeg-static";
-//import TranscriptAPI from 'youtube-transcript-api';
+import { YoutubeTranscript } from 'youtube-transcript';
 // Import the functions you need from the SDKs you need
 import { v2 as cloudinary } from "cloudinary";
 
@@ -32,13 +32,18 @@ import { generateAudios } from "./services/generate_audio.js";
 import youtubeDl from "youtube-dl-exec";
 //import { pronunciationAssessmentContinuousWithFile } from "./services/speech_azure.js";
 import { pronunciationAssessmentWithFile } from "./services/speech_azure_fast.js";
+import Stripe from "stripe";
+
+// Configure youtube-dl-exec to use Python 3.12
+process.env.PYTHON_PATH = '/opt/homebrew/bin/python3.12';
 //import { title } from "process";
 dotenv.config();
 
 const port = process.env.PORT || 3000;
 const apiKey = process.env.API_KEY;
 const app = express();
-
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const YOUTUBE_API_KEY = "hola";
 app.use(express.json());
 app.use(
   cors({
@@ -79,6 +84,27 @@ app.post("/get-ipa", async (req, res) => {
     res.status(500).json({ error: "Error fetching IPA" });
   }
 });
+
+app.post('/create-checkout-session', async (req, res) => {
+  const { email, priceId } = req.body;
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      customer_email: email,       // link Stripe customer to email
+      payment_method_types: ['card'],
+      mode: 'subscription',
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `https://quickcard-web-app.vercel.app/#/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `https://quickcard-web-app.vercel.app/`,
+    });
+
+    res.json({ url: session.url });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 app.get("/responses", async (req, res) => {
   try {
@@ -774,9 +800,7 @@ app.post("/test", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-app.listen(port, "0.0.0.0", () => {
-  console.log(`Server running on port ${port}`);
-});
+
 
 app.get("/create-transcript", async (req, res) => {
   try {
@@ -861,9 +885,7 @@ app.get("/get-books", async (req, res) => {
   }
 });
 
-export default app;
 
-const YOUTUBE_API_KEY = "hola";
 
 function parseISODuration(duration) {
   const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -892,179 +914,246 @@ async function getVideoDetails(videoId) {
   }
 }
 
-app.get("/search-videos/:query", async (req, res) => {
-  const { query } = req.params;
-  if (!query) {
-    return res.status(400).json({ error: "Missing query parameter" });
-  }
+// app.get("/search-videos/:query", async (req, res) => {
+//   const { query } = req.params;
+//   if (!query) {
+//     return res.status(400).json({ error: "Missing query parameter" });
+//   }
 
-  try {
-    // 1. Buscar videos
-    const searchResponse = await fetch(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=100&q=${query}&key=${YOUTUBE_API_KEY}`
-    );
-    const searchData = await searchResponse.json();
+//   try {
+//     // 1. Buscar videos
+//     const searchResponse = await fetch(
+//       `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=100&q=${query}&key=${YOUTUBE_API_KEY}`
+//     );
+//     const searchData = await searchResponse.json();
 
-    const videos = [];
-    console.log(searchData.items[0]);
-    // 2. Para cada video, obtener detalles y verificar subtítulos
-    for (const item of searchData.items) {
-      const videoId = item.id.videoId;
-      const hasCaptions = await getVideoDetails(videoId);
-      if (item.id.videoId == searchData.items[0].id.videoId) {
-        console.log(hasCaptions);
-      }
+//     const videos = [];
+//     console.log(searchData);
+//     // 2. Para cada video, obtener detalles y verificar subtítulos
+//     for (const item of searchData.items) {
+//       const videoId = item.id.videoId;
+//       const hasCaptions = await getVideoDetails(videoId);
+//       if (item.id.videoId == searchData.items[0].id.videoId) {
+//         console.log(hasCaptions);
+//       }
 
-      if (hasCaptions.hasSubtitles) {
-        // Solo incluimos videos que tienen subtítulos
-        videos.push({
-          videoId,
-          title: item.snippet.title,
-          //description: item.snippet.description,
-          thumbnailUrl: item.snippet.thumbnails.medium.url,
-          //  channelTitle: item.snippet.channelTitle,
-          // publishTime: item.snippet.publishTime,
-          duration: hasCaptions.seconds,
-        });
-      }
-    }
+//       if (hasCaptions.hasSubtitles) {
+//         // Solo incluimos videos que tienen subtítulos
+//         videos.push({
+//           videoId,
+//           title: item.snippet.title,
+//           //description: item.snippet.description,
+//           thumbnailUrl: item.snippet.thumbnails.medium.url,
+//           //  channelTitle: item.snippet.channelTitle,
+//           // publishTime: item.snippet.publishTime,
+//           duration: hasCaptions.seconds,
+//         });
+//       }
+//     }
 
-    res.json({ videos });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
+//     res.json({ videos });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 
-async function fetchCaptions(videoId) {
-  try {
-    // Intentar primero con 'en-US'
-    const captions = await getSubtitles({
-      videoID: videoId,
-      lang: "en-US",
-    });
-    console.log("Subtítulos encontrados en en-US");
-    return captions;
-  } catch (error) {
-    // console.log(error);
-    console.warn("No se encontraron en en-US, intentando en en...");
-    try {
-      // Intentar con 'en' si falla 'en-US'
-      const captions = await getSubtitles({
-        videoID: videoId,
-        lang: "en",
-      });
-      console.log("Subtítulos encontrados en en");
-      return captions;
-    } catch (error) {
-      // console.log(error);
-      console.error("No se encontraron subtítulos disponibles.");
-      return [];
-    }
-  }
-}
+// async function fetchCaptions(videoId) {
+//   try {
+//     // Intentar primero con 'en-US'
+//     const captions = await getSubtitles({
+//       videoID: videoId,
+//       lang: "en-US",
+//     });
+//     console.log("Subtítulos encontrados en en-US");
+//     return captions;
+//   } catch (error) {
+//     // console.log(error);
+//     console.warn("No se encontraron en en-US, intentando en en...");
+//     try {
+//       // Intentar con 'en' si falla 'en-US'
+//       const captions = await getSubtitles({
+//         videoID: videoId,
+//         lang: "en",
+//       });
+//       console.log("Subtítulos encontrados en en");
+//       return captions;
+//     } catch (error) {
+//       // console.log(error);
+//       console.error("No se encontraron subtítulos disponibles.");
+//       return [];
+//     }
+//   }
+// }
 
-function parseVTTtoTranscript(vttText) {
-  const lines = vttText.split("\n");
-  const transcript = [];
-  let current = null;
+// function parseVTTtoTranscript(vttText) {
+//   const lines = vttText.split("\n");
+//   const transcript = [];
+//   let current = null;
 
-  for (let line of lines) {
-    line = line.trim();
+//   for (let line of lines) {
+//     line = line.trim();
 
-    // Detectamos línea de tiempo "00:00:00.100 --> 00:00:03.062"
-    if (line.includes("-->")) {
-      const [startTime] = line.split("-->");
-      const startSeconds = timeToSeconds(startTime.trim());
-      current = { start: startSeconds, text: "" };
-    } else if (line && current) {
-       const cleanText = he.decode(line);
-      // Acumulamos texto del subtítulo
-      current.text += (current.text ? " " : "") + cleanText;
-    } else if (!line && current) {
-      // Línea vacía: cerramos el bloque
-      transcript.push(current);
-      current = null;
-    }
-  }
+//     // Detectamos línea de tiempo "00:00:00.100 --> 00:00:03.062"
+//     if (line.includes("-->")) {
+//       const [startTime] = line.split("-->");
+//       const startSeconds = timeToSeconds(startTime.trim());
+//       current = { start: startSeconds, text: "" };
+//     } else if (line && current) {
+//        const cleanText = he.decode(line);
+//       // Acumulamos texto del subtítulo
+//       current.text += (current.text ? " " : "") + cleanText;
+//     } else if (!line && current) {
+//       // Línea vacía: cerramos el bloque
+//       transcript.push(current);
+//       current = null;
+//     }
+//   }
 
-  return transcript;
-}
+//   return transcript;
+// }
 
-// Convierte "hh:mm:ss.mmm" -> segundos con decimales
-function timeToSeconds(timeStr) {
-  const [h, m, s] = timeStr.split(":");
-  const [sec, ms = 0] = s.split(".");
-  return (
-    parseInt(h, 10) * 3600 +
-    parseInt(m, 10) * 60 +
-    parseInt(sec, 10) +
-    (ms ? parseFloat("0." + ms) : 0)
-  );
-}
+// // Convierte "hh:mm:ss.mmm" -> segundos con decimales
+// function timeToSeconds(timeStr) {
+//   const [h, m, s] = timeStr.split(":");
+//   const [sec, ms = 0] = s.split(".");
+//   return (
+//     parseInt(h, 10) * 3600 +
+//     parseInt(m, 10) * 60 +
+//     parseInt(sec, 10) +
+//     (ms ? parseFloat("0." + ms) : 0)
+//   );
+// }
 
-//ID hgYhws0AHcg
-app.get("/get-transcript/:videoId", async (req, res) => {
-  try {
-    const { videoId } = req.params;
+// //ID hgYhws0AHcg
+// // New Vercel-compatible endpoint using pure JavaScript (no Python needed)
+// app.get("/get-transcript/:videoId", async (req, res) => {
+//   try {
+//     const { videoId } = req.params;
+    
+//     // Use youtube-transcript library (pure JavaScript, works on Vercel)
+//     const transcript = await YoutubeTranscript.fetchTranscript(videoId);
+    
+//     // Format to match your expected structure: { start, text }
+//     const formattedTranscript = transcript.map(item => ({
+//       start: item.offset / 1000, // Convert milliseconds to seconds
+//       text: item.text
+//     }));
+    
+//     res.json(formattedTranscript);
+//   } catch (error) {
+//     console.error('Error fetching transcript:', error);
+    
+//     // Fallback to yt-dlp method (works locally with Python 3.12, may fail on Vercel)
+//     try {
+//       const { videoId } = req.params;
+//       const output = await youtubeDl(
+//         `https://www.youtube.com/watch?v=${videoId}`,
+//         {
+//           dumpSingleJson: true,
+//           noCheckCertificates: true,
+//           noWarnings: true,
+//           writeAutoSub: true,
+//           writeSub: true,
+//           subLangs: "en.*",
+//           skipDownload: true,
+//           preferFreeFormats: true,
+//           addHeader: ["referer:youtube.com", "user-agent:googlebot"],
+//         }
+//       );
+      
+//       const firstEnKey = Object.keys(output.subtitles).find((key) =>
+//         key.startsWith("en")
+//       );
+      
+//       if (!firstEnKey) {
+//         throw new Error('No English subtitles found');
+//       }
+      
+//       const enSubtitles = output.subtitles[firstEnKey];
+//       const extVTT = enSubtitles.find(
+//         (sub) => sub.ext === "vtt" && sub.name?.includes("English")
+//       );
+      
+//       if (!extVTT) {
+//         throw new Error('No VTT subtitles found');
+//       }
+      
+//       const url = extVTT.url;
+//       const result = await fetch(url);
+//       const transcriptText = await result.text();
+//       const transcriptJson = parseVTTtoTranscript(transcriptText);
+      
+//       res.json(transcriptJson);
+//     } catch (fallbackError) {
+//       console.error('Fallback also failed:', fallbackError);
+//       res.status(500).json({ success: false, error: error.message });
+//     }
+//   }
+// });
 
-    // const transcript = await YoutubeTranscript.fetchTranscript(videoId);
+// // Keep the old yt-dlp endpoint for reference (rename to avoid conflict)
+// app.get("/get-transcript-ytdlp/:videoId", async (req, res) => {
+//   try {
+//     const { videoId } = req.params;
 
-    // const result = await fetchCaptions(videoId);
-    // const transcriptMap = result.map(({ text, start }) => ({ text, start }));
-    // const justText = transcriptMap.map(({ text }) => text).join(" "); // Remove the second parameter
-    // console.log(justText);
+//     // const transcript = await YoutubeTranscript.fetchTranscript(videoId);
 
-    // console.log(result);
-    const output = await youtubeDl(
-      `https://www.youtube.com/watch?v=${videoId}`,
-      {
-        dumpSingleJson: true,
-        noCheckCertificates: true,
-        noWarnings: true,
-        writeAutoSub: true, // auto-generated subtitles
-        writeSub: true, // manual subtitles (if available)
-        subLangs: "en.*", // pick languages (en.*, es, all, etc.)
-        skipDownload: true, // don’t download video, just metadata + subsccccccccccccccccccccccccccccccccccc
-        preferFreeFormats: true,
-        addHeader: ["referer:youtube.com", "user-agent:googlebot"],
-      }
-    );
-    // console.log(output);
-    // console.log(output.subtitles);
-    // const firstValue = Object.values(output.subtitles).find((sub) =>
-    //   sub.constain("en")
-    // );
-    // console.log(firstValue); // 1
-    const firstEnKey = Object.keys(output.subtitles).find((key) =>
-      key.startsWith("en")
-    );
-    let v0 = "hsh";
+//     // const result = await fetchCaptions(videoId);
+//     // const transcriptMap = result.map(({ text, start }) => ({ text, start }));
+//     // const justText = transcriptMap.map(({ text }) => text).join(" "); // Remove the second parameter
+//     // console.log(justText);
 
-    console.log(firstEnKey); // e.g. "en" or "en-US"
+//     // console.log(result);
+//     const output = await youtubeDl(
+//       `https://www.youtube.com/watch?v=${videoId}`,
+//       {
+//         dumpSingleJson: true,
+//         noCheckCertificates: true,
+//         noWarnings: true,
+//         writeAutoSub: true, // auto-generated subtitles
+//         writeSub: true, // manual subtitles (if available)
+//         subLangs: "en.*", // pick languages (en.*, es, all, etc.)
+//         skipDownload: true, // don’t download video, just metadata + subsccccccccccccccccccccccccccccccccccc
+//         preferFreeFormats: true,
+//         addHeader: ["referer:youtube.com", "user-agent:googlebot"],
+//       }
+//     );
+//     // console.log(output);
+//     // console.log(output.subtitles);
+//     // const firstValue = Object.values(output.subtitles).find((sub) =>
+//     //   sub.constain("en")
+//     // );
+//     // console.log(firstValue); // 1
+//     const firstEnKey = Object.keys(output.subtitles).find((key) =>
+//       key.startsWith("en")
+//     );
+//     let v0 = "hsh";
 
-    const enSubtitles = output.subtitles[firstEnKey];
-    // console.log(enSubtitles);
+//     console.log(firstEnKey); // e.g. "en" or "en-US"
 
-    const extVTT = enSubtitles.find(
-      (sub) => sub.ext === "vtt" && sub.name?.includes("English")
-    );
+//     const enSubtitles = output.subtitles[firstEnKey];
+//     // console.log(enSubtitles);
 
-    console.log(extVTT);
+//     const extVTT = enSubtitles.find(
+//       (sub) => sub.ext === "vtt" && sub.name?.includes("English")
+//     );
 
-    const url = extVTT.url;
-    const result = await fetch(url);
+//     console.log(extVTT);
 
-    const trasncriptText = await result.text();
-    //console.log(trasncriptText);
-    const transcriptJson = parseVTTtoTranscript(trasncriptText);
+//     const url = extVTT.url;
+//     const result = await fetch(url);
 
-    res.json(transcriptJson);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
+//     const trasncriptText = await result.text();
+//     //console.log(trasncriptText);
+//     const transcriptJson = parseVTTtoTranscript(trasncriptText);
+
+//     res.json(transcriptJson);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
 
 app.post("/translate-text", async (req, res) => {
   const { text } = req.body;
@@ -1145,54 +1234,8 @@ app.post("/create-test-user", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-//TRY CATCH FOR AUDIO
 
-// for (const audio of audios) {
-//   try {
-//     const audioBuffer = await generateAudios(audio.transcriptAudio);
-//     const audioUrl = await uploadAudioToCloudinary(
-//       audioBuffer,
-//       audio.mainWord
-//     );
-//     console.log(`Audio uploaded to: ${audioUrl}`);
-//     // Find and update the matching audio object with the binary data
-//     const audioIndex = audios.findIndex((a) => a.id === audio.id);
-//     if (audioIndex !== -1) {
-//       audios[audioIndex] = {
-//         ...audio,
-//         urlAudio: audioUrl,
-//       };
-//     }
-//   } catch (error) {
-//     console.error(`Error generating audio for ${audio.mainWord}:`, error);
-//   }
-// }
-
-/*
-FLASHCARD'S PROPERTIES
-{
-   id,
-   front,
-   back,
-   lastReviewedDate,
-   nextReviewDate,
-   interval,
-   easeFactor,
-   repetitionCount,
-   lapses,
-   score,
-  }
-
-   AUDIO'S PROPERTIES {
-    id,
-    idCard,
-    urlAudio,
-    lastReviewedDate,
-    nextReviewDate,
-    interval,
-    easeFactor,
-    transcriptAudio,
-    repetitionCount,
-    score,
-  }
-    */
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server running on  http://localhost:${port}`);
+});
+export default app;
