@@ -1,17 +1,12 @@
 {
-  "version": 2,
-  "builds": [
+  "buildCommand": "npm install",
+  "rewrites": [
     {
-      "src": "index.js",
-      "use": "@vercel/node"
+      "source": "/(.*)",
+      "destination": "/index.js"
     }
   ],
   "env": {
     "NODE_ENV": "production"
-  },
-  "functions": {
-    "index.js": {
-      "maxDuration": 60
-    }
   }
 }
