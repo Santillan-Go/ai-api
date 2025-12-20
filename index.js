@@ -87,7 +87,10 @@ app.post("/get-ipa", async (req, res) => {
 
 app.post('/create-checkout-session', async (req, res) => {
   const { email, priceId } = req.body;
-
+if(!email || !priceId){
+  console.log("Missing email or priceId", {email, priceId});
+  return res.status(400).json({ error: "Missing email or priceId" });
+}
   try {
     const session = await stripe.checkout.sessions.create({
       customer_email: email,       // link Stripe customer to email
