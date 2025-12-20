@@ -1,5 +1,0 @@
-.env
-node_modules
-credentials/serviceAccountKey.json
-credentials/auth_google.json
-services/credentials/*.json
