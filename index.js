@@ -35,7 +35,7 @@ import { pronunciationAssessmentWithFile } from "./services/speech_azure_fast.js
 import Stripe from "stripe";
 
 // Configure youtube-dl-exec to use Python 3.12
-process.env.PYTHON_PATH = '/opt/homebrew/bin/python3.12';
+//process.env.PYTHON_PATH = '/opt/homebrew/bin/python3.12';
 //import { title } from "process";
 dotenv.config();
 
