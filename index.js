@@ -184,8 +184,8 @@ if(!email || !priceId){
       payment_method_types: ['card'],
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `https://quickcard-web-app.vercel.app/#/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://quickcard-web-app.vercel.app/`,
+      success_url: `${process.env.FRONTEND_URL}/#/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/`,
     });
 
     res.json({ url: session.url });
