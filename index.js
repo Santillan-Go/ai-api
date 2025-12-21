@@ -85,6 +85,7 @@ app.post(
         break;
       case "invoice.payment_succeeded":
          const invoice = event.data.object;
+         console.log("Invoice payment succeeded:", invoice);
           const subFromInvoice = await stripe.subscriptions.retrieve(invoice.subscription);
     await  handleSubscriptionFromSession(subFromInvoice, invoice);
         console.log("Invoice payment succeeded:", event.data.object);
