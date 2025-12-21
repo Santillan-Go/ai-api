@@ -9,7 +9,7 @@ import path from "path";
 // Import the functions you need from the SDKs you need
 import { v2 as cloudinary } from "cloudinary";
 //const bodyParser = require("body-parser");
-import bodyParser from "body-parser";
+
 //import { getSubtitles } from "youtube-captions-scraper";
 //import { getSubtitles } from "./helper/youtube_scraper.js";
 import { uploadAudioToCloudinary } from "./services/cloudinary.js";
@@ -20,12 +20,13 @@ import {
   create_flashcard_word_long,
   create_test_user,
   create_test_user_a1_to_a2,
-  get_prompt_a1_for_audio,
+  //get_prompt_a1_for_audio,
   get_prompt_json_phrase,
   get_promt_json_flashcard,
 } from "./prompts.js";
 import { createAudioBooks, transcribeUrl } from "./books/create_audio_books.js";
 import { generateAudios } from "./services/generate_audio.js";
+import {handleSubscriptionFromSession} from "track_user_payments.js";
 // import { getSubtitles } from "youtube-captions-scraper";
 //import youtubeDl from "youtube-dl-exec";
 //import { pronunciationAssessmentContinuousWithFile } from "./services/speech_azure.js";
@@ -59,7 +60,7 @@ const YOUTUBE_API_KEY = "hola";
 app.post(
   "/api/stripe/webhook",
   express.raw({ type: "application/json" }),
-  (req, res) => {
+  async (req, res) => {
     const sig = req.headers["stripe-signature"];
     let event;
 
@@ -83,6 +84,8 @@ app.post(
         console.log("Checkout session completed:", session);
         break;
       case "invoice.payment_succeeded":
+          const subFromInvoice = await stripe.subscriptions.retrieve(invoice.subscription);
+    await  handleSubscriptionFromSession(subFromInvoice, invoice);
         console.log("Invoice payment succeeded:", event.data.object);
         // TODO: handle recurring payment success
         break;
