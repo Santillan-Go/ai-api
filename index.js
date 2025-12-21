@@ -26,7 +26,7 @@ import {
 } from "./prompts.js";
 import { createAudioBooks, transcribeUrl } from "./books/create_audio_books.js";
 import { generateAudios } from "./services/generate_audio.js";
-import {handleSubscriptionFromSession} from "track_user_payments.js";
+import {handleSubscriptionFromSession} from "./services/track_user_payments.js";
 // import { getSubtitles } from "youtube-captions-scraper";
 //import youtubeDl from "youtube-dl-exec";
 //import { pronunciationAssessmentContinuousWithFile } from "./services/speech_azure.js";
