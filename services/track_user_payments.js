@@ -1,4 +1,4 @@
-import { db } from "./services/firebase.js"; // adjust path if needed
+import { db } from "./firebase"; // adjust path if needed
 
 async function handleSubscriptionFromSession(subscription, invoice = null) {
   const email = subscription.customer_email || (invoice && invoice.customer_email);
