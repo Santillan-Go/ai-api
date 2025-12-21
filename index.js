@@ -8,7 +8,8 @@ import multer from "multer";
 import path from "path";
 // Import the functions you need from the SDKs you need
 import { v2 as cloudinary } from "cloudinary";
-
+//const bodyParser = require("body-parser");
+import bodyParser from "body-parser";
 //import { getSubtitles } from "youtube-captions-scraper";
 //import { getSubtitles } from "./helper/youtube_scraper.js";
 import { uploadAudioToCloudinary } from "./services/cloudinary.js";
@@ -116,6 +117,48 @@ if(!email || !priceId){
   }
 });
 
+
+// Webhook endpoint — use raw body for signature checking
+app.post(
+  "/api/stripe/webhook",
+  bodyParser.raw({ type: "application/json" }),
+  (req, res) => {
+    const sig = req.headers["stripe-signature"];
+    let event;
+
+    try {
+      console.log("🔔 Received Stripe webhook");
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error("⚠️ Webhook signature verification failed:", err.message);
+      return res.status(400).send("Webhook Error");
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case "checkout.session.completed":
+        const session = event.data.object;
+        // TODO: update your DB — mark subscription active, etc.
+        console.log("Checkout session completed:", session);
+        break;
+      case "invoice.payment_succeeded":
+        // TODO: handle recurring payment success
+        break;
+      case "customer.subscription.deleted":
+        // TODO: handle cancellation
+        break;
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    // Return a 200 so Stripe knows it was received
+    res.json({ received: true });
+  }
+);
 
 
 app.get("/responses", async (req, res) => {
