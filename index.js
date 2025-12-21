@@ -80,19 +80,21 @@ app.post(
     switch (event.type) {
       case "checkout.session.completed":
         const session = event.data.object;
+          const subFromInvoice = await stripe.subscriptions.retrieve(session.subscription);
+    await  handleSubscriptionFromSession(subFromInvoice, session);
         // TODO: update your DB — mark subscription active, etc.
         console.log("Checkout session completed:", session);
         break;
       case "invoice.payment_succeeded":
          const invoice = event.data.object;
          console.log("Invoice payment succeeded:", invoice);
-          const subFromInvoice = await stripe.subscriptions.retrieve(invoice.subscription);
-    await  handleSubscriptionFromSession(subFromInvoice, invoice);
-        console.log("Invoice payment succeeded:", event.data.object);
+        
+    //    console.log("Invoice payment succeeded:", event.data.object);
         // TODO: handle recurring payment success
         break;
       case "customer.subscription.deleted":
         console.log("Subscription canceled:", event.data.object);
+
         // TODO: handle cancellation
         break;
       default:
