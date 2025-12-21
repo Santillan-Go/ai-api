@@ -80,23 +80,48 @@ app.post(
     switch (event.type) {
       case "checkout.session.completed":
         const session = event.data.object;
-          const subFromInvoice = await stripe.subscriptions.retrieve(session.subscription);
-    await  handleSubscriptionFromSession(subFromInvoice, session);
-        // TODO: update your DB — mark subscription active, etc.
+        const subFromSession = await stripe.subscriptions.retrieve(session.subscription);
+        await handleSubscriptionFromSession(subFromSession, session);
         console.log("Checkout session completed:", session);
         break;
-      case "invoice.payment_succeeded":
-         const invoice = event.data.object;
-         console.log("Invoice payment succeeded:", invoice);
         
-    //    console.log("Invoice payment succeeded:", event.data.object);
-        // TODO: handle recurring payment success
+      case "invoice.payment_succeeded":
+        const invoice = event.data.object;
+        console.log("Invoice payment succeeded:", invoice);
+        // Recurring payment succeeded - update subscription to active
+        if (invoice.subscription) {
+          const sub = await stripe.subscriptions.retrieve(invoice.subscription);
+          await handleSubscriptionFromSession(sub, { customer_email: invoice.customer_email, expires_at:invoice.expires_at });
+        }
         break;
+        
+      case "invoice.payment_failed":
+        const failedInvoice = event.data.object;
+        console.log("Invoice payment failed:", failedInvoice);
+        // Payment failed - mark subscription as inactive
+        if (failedInvoice.subscription) {
+          const failedSub = await stripe.subscriptions.retrieve(failedInvoice.subscription);
+          // Create a modified subscription object with status 'past_due' or 'unpaid'
+          await handleSubscriptionFromSession(failedSub, { customer_email: failedInvoice.customer_email });
+        }
+        break;
+        
+      case "customer.subscription.updated":
+        const updatedSub = event.data.object;
+        console.log("Subscription updated:", updatedSub);
+        // Handle subscription status changes (active, past_due, canceled, etc.)
+        const customer = await stripe.customers.retrieve(updatedSub.customer);
+        await handleSubscriptionFromSession(updatedSub, { customer_email: customer.email });
+        break;
+        
       case "customer.subscription.deleted":
-        console.log("Subscription canceled:", event.data.object);
-
-        // TODO: handle cancellation
+        const deletedSub = event.data.object;
+        console.log("Subscription canceled:", deletedSub);
+        // Subscription canceled - mark as inactive
+        const canceledCustomer = await stripe.customers.retrieve(deletedSub.customer);
+        await handleSubscriptionFromSession(deletedSub, { customer_email: canceledCustomer.email });
         break;
+        
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
