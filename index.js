@@ -84,8 +84,8 @@ app.post(
         console.log("Checkout session completed:", session);
         break;
       case "invoice.payment_succeeded":
-          const subFromInvoice = await stripe.subscriptions.retrieve(invoice.subscription);
-    await  handleSubscriptionFromSession(subFromInvoice, invoice);
+          const subFromInvoice = await stripe.subscriptions.retrieve(session.subscription);
+    await  handleSubscriptionFromSession(subFromInvoice, session);
         console.log("Invoice payment succeeded:", event.data.object);
         // TODO: handle recurring payment success
         break;
