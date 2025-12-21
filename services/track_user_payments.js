@@ -1,13 +1,15 @@
-import { db } from "./firebase.js"; // adjust path if needed
+//import { db } from "./firebase.js"; // adjust path if needed
 
 async function handleSubscriptionFromSession(subscription, invoice = null) {
+    console.log(subscription);
+    console.log(invoice);
   const email = subscription.customer_email || (invoice && invoice.customer_email);
   const subscriptionId = subscription.id;
   const purchaseDate = new Date(subscription.created * 1000).toISOString();
   const expirationDate = new Date(subscription.current_period_end * 1000).toISOString();
   const subscriptionPeriod = subscription.items.data[0].price.recurring.interval;
 
-  console.log({email, subscriptionId, purchaseDate, expirationDate, subscriptionPeriod});
+  console.log({email, subscriptionId, purchaseDate, expirationDate, subscriptionPeriod}); 
   /// we need to find the user by their email and update their subscription info
   /*
   we need to update or create :
@@ -50,16 +52,17 @@ userID
   */
 
 try {
-      await db.collection("users").doc(email).set({
-    email: email,
-    subscriptionId: subscriptionId,
-    active: subscription.status === "active",
-    entitlement: "pro",
-    purchaseDate: purchaseDate,
-    expirationDate: expirationDate,
-    subscriptionPeriod: subscriptionPeriod,
-    userID: email
-  }, { merge: true });
+//       await db.collection("users").doc(email).set({
+//     email: email,
+//     subscriptionId: subscriptionId,
+//     active: subscription.status === "active",
+//     entitlement: "pro",
+//     purchaseDate: purchaseDate,
+//     expirationDate: expirationDate,
+//     subscriptionPeriod: subscriptionPeriod,
+//     userID: email
+//   }, { merge: true });
+
   console.loq("User subscription updated/created successfully for:", email);
 } catch (error) {
     console.error("Error updating/creating user subscription:", error);
