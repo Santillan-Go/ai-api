@@ -6,7 +6,7 @@ async function handleSubscriptionFromSession(subscription, invoice = null) {
   const email = subscription.customer_email || (invoice && invoice.customer_email);
   const subscriptionId = subscription.id;
   const purchaseDate = new Date(subscription.created * 1000).toISOString();
-  const expirationDate = new Date(subscription.current_period_end * 1000).toISOString();
+  const expirationDate = new Date(invoice.expires_at * 1000).toISOString();
   const subscriptionPeriod = subscription.items.data[0].price.recurring.interval;
 
   console.log({email, subscriptionId, purchaseDate, expirationDate, subscriptionPeriod}); 
