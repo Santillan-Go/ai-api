@@ -54,6 +54,51 @@ const apiKey = process.env.API_KEY;
 const app = express();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const YOUTUBE_API_KEY = "hola";
+
+// Webhook endpoint MUST come before express.json() to get raw body
+app.post(
+  "/api/stripe/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    const sig = req.headers["stripe-signature"];
+    let event;
+
+    try {
+      console.log("🔔 Received Stripe webhook");
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error("⚠️ Webhook signature verification failed:", err.message);
+      return res.status(400).send("Webhook Error");
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case "checkout.session.completed":
+        const session = event.data.object;
+        // TODO: update your DB — mark subscription active, etc.
+        console.log("Checkout session completed:", session);
+        break;
+      case "invoice.payment_succeeded":
+        console.log("Invoice payment succeeded:", event.data.object);
+        // TODO: handle recurring payment success
+        break;
+      case "customer.subscription.deleted":
+        console.log("Subscription canceled:", event.data.object);
+        // TODO: handle cancellation
+        break;
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    // Return a 200 so Stripe knows it was received
+    res.json({ received: true });
+  }
+);
+
 app.use(express.json());
 app.use(
   cors({
@@ -116,49 +161,6 @@ if(!email || !priceId){
     res.status(500).json({ error: err.message });
   }
 });
-
-
-// Webhook endpoint — use raw body for signature checking
-app.post(
-  "/api/stripe/webhook",
-  bodyParser.raw({ type: "application/json" }),
-  (req, res) => {
-    const sig = req.headers["stripe-signature"];
-    let event;
-
-    try {
-      console.log("🔔 Received Stripe webhook");
-      event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        process.env.STRIPE_WEBHOOK_SECRET
-      );
-    } catch (err) {
-      console.error("⚠️ Webhook signature verification failed:", err.message);
-      return res.status(400).send("Webhook Error");
-    }
-
-    // Handle the event
-    switch (event.type) {
-      case "checkout.session.completed":
-        const session = event.data.object;
-        // TODO: update your DB — mark subscription active, etc.
-        console.log("Checkout session completed:", session);
-        break;
-      case "invoice.payment_succeeded":
-        // TODO: handle recurring payment success
-        break;
-      case "customer.subscription.deleted":
-        // TODO: handle cancellation
-        break;
-      default:
-        console.log(`Unhandled event type: ${event.type}`);
-    }
-
-    // Return a 200 so Stripe knows it was received
-    res.json({ received: true });
-  }
-);
 
 
 app.get("/responses", async (req, res) => {
