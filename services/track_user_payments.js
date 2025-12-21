@@ -1,4 +1,4 @@
-//import { db } from "./firebase.js"; // adjust path if needed
+import { db } from "./firebase.js"; // adjust path if needed
 
 async function handleSubscriptionFromSession(subscription, invoice = null) {
     console.log(subscription);
@@ -52,16 +52,16 @@ userID
   */
 
 try {
-//       await db.collection("users").doc(email).set({
-//     email: email,
-//     subscriptionId: subscriptionId,
-//     active: subscription.status === "active",
-//     entitlement: "pro",
-//     purchaseDate: purchaseDate,
-//     expirationDate: expirationDate,
-//     subscriptionPeriod: subscriptionPeriod,
-//     userID: email
-//   }, { merge: true });
+      await db.collection("users").doc(email).set({
+    email: email,
+    subscriptionId: subscriptionId,
+    active: subscription.status === "active",
+    entitlement: "pro",
+    purchaseDate: purchaseDate,
+    expirationDate: expirationDate,
+    subscriptionPeriod: subscriptionPeriod,
+    userID: email
+  }, { merge: true });
 
   console.loq("User subscription updated/created successfully for:", email);
 } catch (error) {
