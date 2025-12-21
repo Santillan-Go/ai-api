@@ -52,18 +52,20 @@ userID
   */
 
 try {
-      await db.collection("users").doc(email).set({
-    email: email,
-    subscriptionId: subscriptionId,
-    active: subscription.status === "active",
-    entitlement: "pro",
-    purchaseDate: purchaseDate,
-    expirationDate: expirationDate,
-    subscriptionPeriod: subscriptionPeriod,
-    userID: email
-  }, { merge: true });
 
-  console.loq("User subscription updated/created successfully for:", email);
+    //subscription, we need to upsert the user subscription info, in the collection user==>subscription
+      await db.collection("users").doc(email).collection("subscription").doc("pro").set({
+        email,
+        subscriptionId,
+        active: subscription.status === "active",
+        entitlement: "pro",
+        purchaseDate,
+        expirationDate,
+        subscriptionPeriod,
+        userID: email
+    }, { merge: true }); // merge:true to update existing fields without overwriting the entire document
+
+  console.log("User subscription updated/created successfully for:", email);
 } catch (error) {
     console.error("Error updating/creating user subscription:", error);
 }
